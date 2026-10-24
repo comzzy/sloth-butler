@@ -40,7 +40,10 @@ export function fixOpener(text: string, kind: keyof typeof OPENERS) {
     t = m && m[0].length < t.length ? t.slice(m[0].length) : t.replace(REFUSAL_RE, "").replace(/^[\s,.:;-]+/, "");
     changed = true;
   }
-  if (changed || !/^(hi|hello|hey|dear|good (morning|afternoon)|following|just|this is|a quick|quick)/i.test(t)) {
+  const parts = t.split(/(?<=[.!?])\s+/);
+  const kept = parts.filter((x, i) => i === 0 || !/^\s*(?:no\b|sorry\b|i'?m sorry\b|unfortunately\b|i'?m afraid\b)/i.test(x));
+  if (kept.length && kept.length < parts.length) { t = kept.join(" "); changed = true; }
+  if (!/^(hi|hello|hey|dear|good (morning|afternoon)|following|just|this is|a quick|quick)/i.test(t)) {
     t = `${OPENERS[kind]} ${t.charAt(0).toUpperCase()}${t.slice(1)}`; changed = true;
   }
   return { text: t, changed };

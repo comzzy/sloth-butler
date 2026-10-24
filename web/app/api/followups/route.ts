@@ -37,13 +37,13 @@ export async function POST(req: Request) {
     const steps = await Promise.all(STEPS.map(async (s, i) => {
       const r = await generateReply(variant, request, s.style, language, scenario, {
         terms: terms && termsLine(terms),
-        extra: `${s.brief(terms?.lateFee ?? "")} Today is ${longDate(sendAt[i])}. The only date you may mention is ${deadlines[i]}: ask for ${scenario === "waiting" ? "an answer" : "payment"} by ${deadlines[i]}. Do not mention any other date. ${owed} Do not decline anything and do not start with "No"; this is a follow-up, not a refusal. Open the way a ${s.title.toLowerCase()} would.`.trim(),
+        extra: `${s.brief(scenario === "late-invoice" ? terms?.lateFee ?? "" : "")} Today is ${longDate(sendAt[i])}. The only date you may mention is ${deadlines[i]}: ask for ${scenario === "waiting" ? "an answer" : "payment"} by ${deadlines[i]}. Do not mention any other date. ${owed} Do not decline anything and do not start with "No"; this is a follow-up, not a refusal. Open the way a ${s.title.toLowerCase()} would.`.trim(),
       });
       const opener = fixOpener(r.text, s.kind);
       const pinned = pinDates(opener.text, deadlines[i], ask);
       let text = pinned.text;
       if (terms && checkTerms(text, terms).length) text = `${text}\n\n${correctionLine(terms)}`;
-      if (s.kind === "final" && terms?.lateFee && !/late fee|fee/i.test(text)) text = `${text}\n\nAfter that date, my late fee applies: ${terms.lateFee}.`;
+      if (s.kind === "final" && scenario === "late-invoice" && terms?.lateFee && !/late fee|fee/i.test(text)) text = `${text}\n\nAfter that date, my late fee applies: ${terms.lateFee}.`;
       if (startsWithRefusal(text)) text = fixOpener(text, s.kind).text;
       return { kind: s.kind, title: s.title, offsetDays: days[i], sendOn: sendAt[i].toISOString().slice(0, 10), deadline: deadlines[i], text, fixes: { opener: opener.changed, dates: pinned.fixed } };
     }));
