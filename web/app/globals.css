@@ -375,3 +375,15 @@ main:focus,[tabindex="-1"]:focus{outline:none}
   nav a{font-size:14px}
 }
 @media (max-width:370px){nav{gap:11px}nav a{font-size:13px}.site-header .brand svg{width:28px;height:28px}}
+.primary{display:inline-flex;align-items:center;gap:10px;background:#1E1A17;color:#fff;border:0;border-radius:999px;padding:14px 26px;font-weight:700;font-size:17px;cursor:pointer;text-decoration:none;transition:transform .6s var(--ease-sloth),background .4s}
+.primary:hover{background:#3a3633;transform:translateY(-2px)}
+.t-short{display:none}
+@media (max-width:640px){
+  .head-row strong .t-long{display:none}
+  .head-row strong .t-short{display:inline}
+  .head-row .row-line{display:none}
+  .head-row a{align-items:center;gap:10px;padding-left:10px}
+  .head-row strong{font-size:16px;line-height:1.1;white-space:nowrap}
+  .head-row .num{line-height:1;flex:none}
+  header.site-header .brand > span{display:none}
+}

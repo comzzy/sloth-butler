@@ -39,7 +39,7 @@ export function BandedHead() {
             <a href={`#${f.id}`} tabIndex={-1}>
               <span className="num" style={{ color: f.color }} aria-hidden="true">{f.n}</span>
               <span>
-                <strong>{f.title}</strong>
+                <strong><span className="t-long">{f.title}</span><span className="t-short">{f.short}</span></strong>
                 <span className="row-line">{f.line}</span>
               </span>
             </a>
