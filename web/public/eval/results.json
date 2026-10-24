@@ -1,0 +1,57 @@
+{
+  "seed": 2026,
+  "temperature": 0.7,
+  "checkpoint": "tinker://edb0b1c8-9aea-5b41-8fc5-a9a4df01009a:train:0/sampler_weights/sloth-butler-final",
+  "base_model": "Qwen/Qwen3-8B",
+  "judge": "openai/gpt-oss-120b (Groq)",
+  "n_test": 60,
+  "base": {
+    "n": 60,
+    "pass_rate": 0.26666666666666666,
+    "per_rule": {
+      "decline_first": 0.8666666666666667,
+      "one_offer": 0.43333333333333335,
+      "max_80_words": 0.9666666666666667,
+      "no_double_apology": 1.0,
+      "no_ai_tics": 0.9333333333333333,
+      "no_false_excuse": 0.9666666666666667,
+      "language_match": 0.7333333333333333,
+      "style_match": 0.8166666666666667
+    },
+    "avg_words": 38.63333333333333,
+    "ai_tics_per_100": 6.666666666666667,
+    "pidgin_correct_rate": 0.041666666666666664,
+    "pidgin_n": 24,
+    "latency_s_mean": 1.6477867682774863,
+    "latency_s_median": 1.4827779531478882,
+    "cost_usd_per_reply": 8.15545e-05,
+    "avg_completion_tokens": 58.21666666666667
+  },
+  "finetuned": {
+    "n": 60,
+    "pass_rate": 0.85,
+    "per_rule": {
+      "decline_first": 1.0,
+      "one_offer": 1.0,
+      "max_80_words": 1.0,
+      "no_double_apology": 1.0,
+      "no_ai_tics": 1.0,
+      "no_false_excuse": 0.9833333333333333,
+      "language_match": 1.0,
+      "style_match": 0.85
+    },
+    "avg_words": 20.266666666666666,
+    "ai_tics_per_100": 0.0,
+    "pidgin_correct_rate": 0.875,
+    "pidgin_n": 24,
+    "latency_s_mean": 2.5670551856358848,
+    "latency_s_median": 1.5374622344970703,
+    "cost_usd_per_reply": 6.40745e-05,
+    "avg_completion_tokens": 29.083333333333332
+  },
+  "pairwise": {
+    "n": 60,
+    "finetuned_wins": 38,
+    "base_wins": 22
+  }
+}

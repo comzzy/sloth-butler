@@ -22,7 +22,6 @@ h1{font-size:clamp(42px,6vw,76px);font-weight:800}
 .head{--bh:96px;display:grid;grid-template-columns:calc(var(--bh)*5*.64) 1fr;align-items:start}
 .head-svg{width:100%;height:calc(var(--bh)*5);display:block;overflow:visible}
 .band{transform:translateX(-60px);opacity:0;animation:bandIn 1.8s var(--ease-sloth) forwards}
-.monocle{opacity:0;animation:fade 1.2s var(--ease-sloth) 2s forwards}
 .badge{transform-box:fill-box;transform-origin:center;opacity:0;animation:badgeIn 1.4s var(--ease-sloth) forwards,idle 7s ease-in-out infinite;transition:filter .4s}
 .badge-link{cursor:pointer;outline:none}
 .badge-link:hover .badge,.badge-link:focus-visible .badge{filter:brightness(1.12) drop-shadow(0 4px 8px rgba(0,0,0,.18))}

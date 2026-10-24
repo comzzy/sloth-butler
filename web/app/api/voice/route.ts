@@ -6,7 +6,7 @@ import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 export const runtime = "nodejs";
 const VOICE = () => process.env.ELEVENLABS_VOICE_ID || "Xb7hH8MSUJpSbSDYk0k2"; // Alice: calm British female, premade (works on the free plan)
 const MODEL = "eleven_multilingual_v2";
-const CACHE_DIR = path.join(process.cwd(), ".cache", "voice");
+const CACHE_DIR = process.env.VERCEL ? path.join("/tmp", "voice-cache") : path.join(process.cwd(), ".cache", "voice");
 const mem = new Map<string, Buffer>();
 
 function audio(buf: Buffer, hit: boolean) {

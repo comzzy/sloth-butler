@@ -21,11 +21,6 @@ export function BandedHead() {
             <rect key={f.id} className="band" style={{ animationDelay: `${0.2 + i * 0.32}s` }} x="0" y={i * 100} width="320" height="101" fill={f.color} />
           ))}
         </g>
-        {/* monocle */}
-        <g className="monocle" fill="none" stroke="#2B2A29" strokeWidth="2.5" strokeLinecap="round">
-          <circle cx="86" cy="186" r="13" />
-          <path d="M99 190 C108 198 110 208 106 220" strokeWidth="1.5" />
-        </g>
         {FEATURES.map((f, i) => {
           const I = ICONS[i];
           return (
