@@ -8,7 +8,7 @@ If you sell your time or your products, you know these messages. A client asks y
 
 None of these are hard decisions. The hard part is the wording: staying polite without giving ground, not over-apologising, and not opening a long back-and-forth. So the reply sits in your inbox for days. Sloth Butler writes it for you in a few seconds: a polite, firm answer with exactly one counter-offer, such as a paid option, a later date or a partial yes.
 
-It is built for freelancers, consultants, small business owners and online sellers, wherever they work and in whatever currency they bill.
+It is for the messages that cost you time and money: unpaid extra work, discount pressure, late invoices and clients who go quiet, in whatever currency you bill.
 
 ## What it does
 
