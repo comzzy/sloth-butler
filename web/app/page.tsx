@@ -10,24 +10,24 @@ export default function Home() {
         <a href="#top" className="brand" aria-label="Sloth Butler home"><Logo size={38} /><span>Sloth Butler</span></a>
         <nav aria-label="Main">
           <a href="#negotiate">Try it</a>
-          <a href="#ledger">Ledger</a>
-          <a href="#proof">Proof</a>
+          <a href="#ledger">Time saved</a>
+          <a href="#proof">Does it work?</a>
         </nav>
       </header>
       <main id="top">
         <section className="hero" aria-labelledby="hero-h">
           <div className="hero-copy">
             <h1 id="hero-h">Say not now,<br />kindly.</h1>
-            <p className="lede">Paste a request you dread. Sloth Butler writes a clear, polite no with one counter-offer, in the tone and language you pick, and reads it aloud in a calm voice.</p>
-            <a href="#negotiate" className="primary as-link">Decline something</a>
-            <p className="small-print">Open source. Runs on a fine-tuned open-weight model.</p>
+            <p className="lede">Paste a message you don't want to say yes to. You get a short, polite no with one counter-offer. It can read it out loud too.</p>
+            <a href="#negotiate" className="primary as-link">Try it</a>
+            <p className="small-print">Open source. Runs on Qwen3-8B, trained for this one job.</p>
           </div>
           <BandedHead />
         </section>
       </main>
       <div id="app"><SlothApp /></div>
       <footer className="site-footer">
-        <Logo size={28} /><span>Sloth Butler. Open source under the MIT licence. Replies are suggestions; read before you send.</span>
+        <Logo size={28} /><span>Sloth Butler. MIT licence. Read the reply before you send it.</span>
       </footer>
     </>
   );

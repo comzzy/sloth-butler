@@ -10,5 +10,5 @@ export async function GET() {
   for (const p of candidates) {
     try { return json({ ok: true, results: JSON.parse(await readFile(p, "utf8")) }); } catch {}
   }
-  return json({ ok: false, error: "Eval results are not published yet." }, 404);
+  return json({ ok: false, error: "No test results yet." }, 404);
 }

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const style = body.style as Style;
   const language = body.language as Language;
   const compare = body.compare === true;
-  if (request.length < 5) return json({ error: "Paste the request you want to decline (at least 5 characters)." }, 400);
+  if (request.length < 5) return json({ error: "Paste a request (at least 5 characters)." }, 400);
   if (request.length > 2000) return json({ error: "That request is too long. Keep it under 2,000 characters." }, 400);
   if (!STYLES.includes(style)) return json({ error: "Pick a style: soft, firm or maybe-later." }, 400);
   if (!LANGUAGES.includes(language)) return json({ error: "Pick a language: English or Nigerian Pidgin." }, 400);
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     const cfg = modelConfig();
     const variant = cfg.finetunePath ? "finetune" : "base";
     const out = await generateReply(variant, request, style, language);
-    return json({ ...out, fallback: variant === "base" ? "Fine-tuned checkpoint not set. This reply came from the base model." : undefined });
+    return json({ ...out, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });
   } catch (e) {
     const status = e instanceof ModelError ? e.status : 500;
     return json({ error: e instanceof ModelError ? e.message : "Something went wrong." }, status);

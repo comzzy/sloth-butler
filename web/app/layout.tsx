@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "700", "800"], 
 
 export const metadata: Metadata = {
   title: "Sloth Butler: say not now, kindly",
-  description: "Paste a request you dread. Get a kind, firm reply with one counter-offer, in your style and language, read aloud by a calm butler.",
+  description: "Paste a request you want to turn down. Get a short, polite no with one counter-offer.",
   icons: { icon: "/icon.svg", apple: "/brand/logo-180.png" },
 };
 export const viewport: Viewport = { themeColor: "#EEEAE8", width: "device-width", initialScale: 1 };
