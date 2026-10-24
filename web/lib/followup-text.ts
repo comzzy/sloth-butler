@@ -41,7 +41,7 @@ export function fixOpener(text: string, kind: keyof typeof OPENERS) {
     changed = true;
   }
   const parts = t.split(/(?<=[.!?])\s+/);
-  const kept = parts.filter((x, i) => i === 0 || !/^\s*(?:no\b|unfortunately\b|i['’]?m afraid\b)|\bsorry\b|\bapologi[sz]e|\bcan['’]?t wait\b|\bhaven['’]?t been able to get back\b/i.test(x));
+  const kept = parts.filter(x => !/^\s*(?:no\b|unfortunately\b|i['’]?m afraid\b)|\bsorry\b|\bapologi[sz]e|\bcan['’]?t wait\b|\bhaven['’]?t been able to get back\b/i.test(x));
   if (kept.length && kept.length < parts.length) { t = kept.join(" "); changed = true; }
   if (!/^(hi|hello|hey|dear|good (morning|afternoon)|following|just|this is|a quick|quick)/i.test(t)) {
     t = `${OPENERS[kind]} ${t.charAt(0).toUpperCase()}${t.slice(1)}`; changed = true;
