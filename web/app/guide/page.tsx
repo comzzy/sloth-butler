@@ -92,7 +92,7 @@ export default function Guide() {
           <section className="g-sec" aria-labelledby="what">
             <Head id="what" n={1} title="What it is" />
             <Reveal className="card g-card" delay={100} style={{ ["--c" as string]: C[0] }}>
-              <p className="g-lede">Sloth-Butler handles the messages you dread replying to: a client asking for free extra work, a customer pushing for a discount, an invoice that is weeks late, someone who wants to pay later, or a last-minute call. You paste the message, and it writes a polite, firm reply with one counter-offer, such as a paid option, a later date or a partial yes. You can copy it, listen to it or save it as a voice note, then log the hours and money it protected. It remembers your rate and your floor, and plans follow-ups for invoices that are late.</p>
+              <p className="g-lede">Calm replies to the messages you dread: a client asking for free extra work, a customer pushing for a discount, an invoice that is weeks late, someone who wants to pay later, or a last-minute call. You paste the message, and it writes a polite, firm reply with one counter-offer, such as a paid option, a later date or a partial yes. You can copy it, listen to it or save it as a voice note, then log the hours and money it protected. It remembers your rate and your floor, and plans follow-ups for invoices that are late.</p>
               <Link href="/#negotiate" className="btn-secondary g-cta">Write a reply</Link>
             </Reveal>
           </section>

@@ -565,3 +565,4 @@ h1,h2,h3{text-wrap:balance}
 .hero .lede{margin-bottom:0;text-wrap:pretty}
 p{text-wrap:pretty}
 @media (min-width:641px){.hero .eyebrow{white-space:nowrap;font-size:12px}}
+@media (min-width:641px){.hero .eyebrow{letter-spacing:.04em;font-size:11px;max-width:100%}}
