@@ -324,10 +324,10 @@ export function SlothApp() {
               <label className="tf">Deposit or payment terms<input value={terms.payment ?? ""} onChange={e => setT("payment", e.target.value)} maxLength={80} placeholder="50% upfront, rest net 14" /></label>
               <label className="tf">Late fee<input value={terms.lateFee ?? ""} onChange={e => setT("lateFee", e.target.value)} maxLength={80} placeholder="2% per month after 14 days" /></label>
               <label className="tf wide">Next available<input value={terms.available ?? ""} onChange={e => setT("available", e.target.value)} maxLength={80} placeholder="from 10 November" /></label>
-            </div>
-            <div className="terms-foot">
-              <p className="fine">Kept in this browser. Sent with each reply so the counter-offer uses your real numbers and never goes under your floor.</p>
-              <button type="submit" className="btn-secondary">{termsSaved ? "Saved ✓" : "Save my terms"}</button>
+              <div className="terms-foot wide">
+                <p className="fine">Kept in this browser. Sent with each reply so the counter-offer uses your real numbers and never goes under your floor.</p>
+                <button type="submit" className="btn-secondary">{termsSaved ? "Saved ✓" : "Save my terms"}</button>
+              </div>
             </div>
           </form>
         </Card>

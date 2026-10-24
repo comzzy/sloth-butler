@@ -469,7 +469,7 @@ input[type=text]::placeholder,.logbox input::placeholder{color:var(--s-mut2)}
 .tf input,.tf .select,.planbox input{width:100%;min-width:0;font:inherit;font-size:15px;color:var(--s-ink);background:rgba(0,0,0,.28);border:1px solid var(--s-line2);border-radius:12px;padding:12px 14px;transition:border-color .6s var(--ease-sloth),box-shadow .6s var(--ease-sloth)}
 .tf input::placeholder,.planbox input::placeholder{color:var(--s-mut2)}
 .tpair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:8px}
-.terms-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;flex-wrap:wrap}
+.terms-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;grid-column:span 2;min-width:0}
 .terms-foot .fine{flex:1 1 280px;margin:0}
 .terms-chip{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:600;color:#14110E;background:linear-gradient(145deg,#E9B872,#C08F45);border-radius:999px;padding:5px 11px;white-space:nowrap;animation:heroIn 1s var(--ease-sloth) both}
 .terms-chip.on{margin:14px 0 0}
@@ -505,7 +505,7 @@ input[type=text]::placeholder,.logbox input::placeholder{color:var(--s-mut2)}
 @media (max-width:960px){.tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.fu-list{grid-template-columns:1fr}}
 @media (max-width:640px){.nav-wide{display:none}}
 @media (max-width:560px){
-  .tgrid{grid-template-columns:1fr;gap:12px}.tf.wide{grid-column:auto}
+  .tgrid{grid-template-columns:1fr;gap:12px}.tf.wide,.terms-foot{grid-column:auto}
   .terms-foot .btn-secondary{width:100%;justify-content:center}
   .planbox-row{grid-template-columns:repeat(3,minmax(0,1fr))}.planbox-row .wide{grid-column:1/-1}
   .fu-actions .btn-ghost{flex:1 1 auto;justify-content:center}
