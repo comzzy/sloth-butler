@@ -290,7 +290,7 @@ export function SlothApp() {
 
         <Reveal className="stage-head sub" delay={0}>
           <span className="eyebrow"><span className="eyebrow-dot" />Your numbers</span>
-          <h2>Time saved, and does it work?</h2>
+          <h2>Time saved and test results</h2>
         </Reveal>
 
         <div className="dash">
