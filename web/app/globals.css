@@ -348,3 +348,30 @@ nav a[aria-current=page]{color:#fff}
 @media (max-width:560px){.g-road{grid-template-columns:1fr}.g-sample{align-items:flex-start}}
 @media (max-width:480px){.site-header .brand span{display:none}}
 @media (prefers-reduced-motion:reduce){.g-node::before{transform:none!important;transition:none!important}.g-node::after{opacity:1!important;transition:none!important}.g-a,.g-a-in,.g-q i::before,.g-q i::after{transition:none!important}}
+
+/* Mobile gutters: one 20px gutter for everything, no framed outer container */
+main:focus,[tabindex="-1"]:focus{outline:none}
+@media (max-width:640px){
+  .site-header{padding:10px 20px}
+  main#top{padding-left:20px;padding-right:20px}
+  .stage{padding-left:20px;padding-right:20px;border-radius:0}
+  .stage::before{height:4px}
+  .stage-inner{max-width:none}
+  .card{padding:20px;border-radius:18px}
+  .stage-head,.g-head{padding:0;margin-left:0;margin-right:0}
+  .stage-head{margin-bottom:28px}
+  .g-sec{margin-top:56px}
+  .g-head{margin-bottom:18px}
+  .g-toc{gap:8px;margin-top:22px}
+  .g-toc a{padding:7px 12px;font-size:13.5px}
+  .g-step{padding:16px 18px;gap:14px}
+  .g-flow{padding:20px}
+  .g-samples{padding:20px}
+  .site-footer{padding:24px 20px 32px}
+}
+@media (max-width:520px){
+  .site-header .brand span{display:none}
+  nav{gap:14px}
+  nav a{font-size:14px}
+}
+@media (max-width:370px){nav{gap:11px}nav a{font-size:13px}.site-header .brand svg{width:28px;height:28px}}
