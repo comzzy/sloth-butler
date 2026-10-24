@@ -26,5 +26,5 @@ The chime in `public/audio/declined-chime.mp3` was generated once with the Eleve
 | `MODEL_FINETUNE_PATH` | yes for the fine-tune | `tinker://.../sampler_weights/...`. If unset, replies come from the base model with a notice. |
 | `BASE_MODEL` | no | Defaults to `Qwen/Qwen3-8B` |
 | `ELEVENLABS_API_KEY` | yes for voice | |
-| `ELEVENLABS_VOICE_ID` | no | Defaults to George (calm British male) |
+| `ELEVENLABS_VOICE_ID` | no | Defaults to Alice (calm British female, a premade voice that works on the free plan) |
 | `TINKER_OAI_BASE_URL`, `EVAL_RESULTS_PATH` | no | Overrides |

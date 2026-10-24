@@ -4,7 +4,7 @@ import path from "node:path";
 import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
-const VOICE = () => process.env.ELEVENLABS_VOICE_ID || "JBFqnCBsd6RMkjVDRZzb"; // George: calm British male
+const VOICE = () => process.env.ELEVENLABS_VOICE_ID || "Xb7hH8MSUJpSbSDYk0k2"; // Alice: calm British female, premade (works on the free plan)
 const MODEL = "eleven_multilingual_v2";
 const CACHE_DIR = path.join(process.cwd(), ".cache", "voice");
 const mem = new Map<string, Buffer>();
