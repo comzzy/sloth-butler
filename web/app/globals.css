@@ -387,3 +387,11 @@ main:focus,[tabindex="-1"]:focus{outline:none}
   .head-row .num{line-height:1;flex:none}
   header.site-header .brand > span{display:none}
 }
+/* 3D head */
+.head-3d{perspective:1100px;--rx:0deg;--ry:0deg}
+.head-3d .head-svg{transform:rotateX(var(--rx)) rotateY(var(--ry));transform-origin:60% 50%;filter:drop-shadow(14px 18px 22px rgba(30,20,10,.28))}
+.head-3d .head-rows{transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(20px);transform-origin:0 50%}
+.head-3d .face-edge{stroke:#fff;stroke-opacity:.55;stroke-width:5;filter:blur(1.2px)}
+.head-3d .cast{fill:rgba(30,20,10,.22);filter:blur(10px)}
+.head-3d .band:nth-child(1){--z:0}
+@media (prefers-reduced-motion:reduce){.head-3d .head-svg,.head-3d .head-rows{transform:none}}

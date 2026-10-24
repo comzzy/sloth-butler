@@ -1,3 +1,4 @@
+import { Tilt } from "./Tilt";
 import { FEATURES } from "@/lib/features";
 import { IconLedger, IconNegotiate, IconProof, IconStyle, IconVoice } from "./icons";
 
@@ -11,22 +12,51 @@ const HEAD =
 
 export function BandedHead() {
   return (
-    <div className="head">
+    <Tilt>
       <svg className="head-svg" viewBox="0 0 320 500" role="group" aria-label="Sloth Butler features">
         <defs>
           <clipPath id="headClip"><path d={HEAD} /></clipPath>
+          <linearGradient id="bandShade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fff" stopOpacity=".32" />
+            <stop offset=".45" stopColor="#fff" stopOpacity="0" />
+            <stop offset="1" stopColor="#000" stopOpacity=".22" />
+          </linearGradient>
+          <linearGradient id="sideShade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#000" stopOpacity=".18" />
+            <stop offset=".35" stopColor="#000" stopOpacity="0" />
+            <stop offset="1" stopColor="#000" stopOpacity=".12" />
+          </linearGradient>
+          <radialGradient id="badgeShine" cx=".35" cy=".3" r=".75">
+            <stop offset="0" stopColor="#fff" stopOpacity=".45" />
+            <stop offset=".5" stopColor="#fff" stopOpacity="0" />
+            <stop offset="1" stopColor="#000" stopOpacity=".25" />
+          </radialGradient>
+          <filter id="badgeLift" x="-30%" y="-30%" width="160%" height="170%">
+            <feDropShadow dx="0" dy="6" stdDeviation="5" floodColor="#000" floodOpacity=".3" />
+          </filter>
+          <filter id="bandLip" x="-5%" y="-5%" width="110%" height="130%">
+            <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#000" floodOpacity=".22" />
+          </filter>
         </defs>
+        <ellipse className="cast" cx="190" cy="512" rx="150" ry="14" />
         <g clipPath="url(#headClip)">
           {FEATURES.map((f, i) => (
-            <rect key={f.id} className="band" style={{ animationDelay: `${0.2 + i * 0.32}s` }} x="0" y={i * 100} width="320" height="101" fill={f.color} />
-          ))}
+            <g key={f.id} className="band" style={{ animationDelay: `${0.2 + i * 0.32}s` }} filter={i < 4 ? "url(#bandLip)" : undefined}>
+              <rect x="0" y={i * 100} width="320" height="101" fill={f.color} />
+              <rect x="0" y={i * 100} width="320" height="101" fill="url(#bandShade)" />
+              <rect x="0" y={i * 100} width="320" height="101" fill="url(#sideShade)" />
+            </g>
+          )).reverse()}
+          <path d={HEAD} className="face-edge" fill="none" />
         </g>
         {FEATURES.map((f, i) => {
           const I = ICONS[i];
           return (
             <a key={f.id} href={`#${f.id}`} className="badge-link" aria-label={`${f.n}. ${f.title}`}>
-              <g className="badge" style={{ animationDelay: `${1 + i * 0.32}s, ${2.6 + i * 0.9}s` }}>
+              <g className="badge" filter="url(#badgeLift)" style={{ animationDelay: `${1 + i * 0.32}s, ${2.6 + i * 0.9}s` }}>
                 <circle cx="258" cy={50 + i * 100} r="44" fill={f.dark} />
+                <circle cx="258" cy={50 + i * 100} r="44" fill="url(#badgeShine)" />
+                <circle cx="258" cy={50 + i * 100} r="43" fill="none" stroke="#fff" strokeOpacity=".25" strokeWidth="1.5" />
                 <I className="badge-icon" x="232" y={24 + i * 100} width="52" height="52" color="#fff" />
               </g>
             </a>
@@ -46,6 +76,6 @@ export function BandedHead() {
           </li>
         ))}
       </ol>
-    </div>
+    </Tilt>
   );
 }
