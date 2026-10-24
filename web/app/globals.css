@@ -274,3 +274,7 @@ button{font:inherit}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
 }
 .reply-body:has(.reply-filled){justify-content:flex-start}
+
+.site-header .brand span,nav a{white-space:nowrap}
+@media (max-width:480px){nav{gap:14px}nav a{font-size:14px}.site-header .brand span{font-size:16px}.site-header .brand svg{width:30px;height:30px}}
+@media (max-width:360px){.site-header .brand span{display:none}}
