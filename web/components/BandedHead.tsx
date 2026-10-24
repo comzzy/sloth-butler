@@ -12,7 +12,7 @@ const HEAD =
 export function BandedHead() {
   return (
     <div className="head">
-      <svg className="head-svg" viewBox="0 0 320 500" role="group" aria-label="Sloth-Butler features">
+      <svg className="head-svg" viewBox="10.5 0 309.5 500" preserveAspectRatio="xMinYMin meet" role="group" aria-label="Sloth-Butler features">
         <defs>
           <clipPath id="headClip"><path d={HEAD} /></clipPath>
         </defs>

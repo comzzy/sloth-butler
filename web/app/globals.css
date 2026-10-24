@@ -580,3 +580,4 @@ p{text-wrap:pretty}
 .nav-more>button *{animation:none}
 .nav-more .chev{transition:transform .3s}.nav-more>button[aria-expanded=true] .chev{transform:rotate(180deg)}
 @media (max-width:640px){.nav-more>button{font-size:14px}}@media (max-width:480px){.nav-more>button{font-size:13px}}
+.head{grid-template-columns:calc(var(--bh)*5*.619) 1fr}
