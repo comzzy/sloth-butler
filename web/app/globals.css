@@ -523,7 +523,8 @@ input[type=text]::placeholder,.logbox input::placeholder{color:var(--s-mut2)}
 @media (max-width:640px){.nav-more{display:block}}
 
 nav{align-items:center}
-nav>a,nav>.nav-more{display:inline-flex;align-items:center;line-height:1}
+nav>a{display:inline-flex;align-items:center;line-height:1}
+@media (max-width:640px){nav>.nav-more{display:inline-flex;align-items:center}}
 @media (max-width:640px){nav>a.nav-wide{display:none}}
 
 /* Equal cards everywhere */
@@ -550,3 +551,4 @@ h1{font-weight:600}
 .stage-head h2{font-size:clamp(28px,3.4vw,40px)}
 .g-head h2{font-weight:600;font-size:clamp(24px,2.8vw,32px)}
 @media (max-width:640px){.hero h1{font-size:clamp(29px,8vw,34px)}}
+.hero h1{max-width:20ch}
