@@ -5,3 +5,4 @@ __pycache__/
 tvenv/
 logs/
 *.log
+.vercel
