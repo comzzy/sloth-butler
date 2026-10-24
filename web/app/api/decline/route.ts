@@ -1,6 +1,6 @@
 import { generateReply, modelConfig, ModelError } from "@/lib/model";
 import { LANGUAGES, SCENARIO_IDS, STYLES, type Context, type Language, type Scenario, type Style } from "@/lib/prompt";
-import { checkTerms, correctionLine, parseTerms, termsLine } from "@/lib/terms";
+import { checkTerms, enforceTerms, parseTerms, termsLine } from "@/lib/terms";
 import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -49,9 +49,11 @@ export async function POST(req: Request) {
       const issues = checkTerms(out.text, terms);
       if (issues.length) {
         // One retry with the problem spelled out; if it still breaks the floor, append the real terms.
-        const retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: `Your last draft broke my terms (${issues.join("; ")}). Do not go below my minimum or above my discount limit.` }).catch(() => null);
+        const fix = `Your last draft broke my terms (${issues.join("; ")}). Any total, including after a discount, must be at least my minimum, and no discount may be above my limit.`;
+        let retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: fix }).catch(() => null);
+        if (retry && checkTerms(retry.text, terms).length) retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: fix }).catch(() => null);
         if (retry && !checkTerms(retry.text, terms).length) { out = retry; guard = { issues, action: "regenerated" }; }
-        else { out = { ...out, text: `${out.text}\n\n${correctionLine(terms)}`.trim() }; guard = { issues, action: "corrected" }; }
+        else { out = { ...out, text: enforceTerms(out.text, terms) }; guard = { issues, action: "corrected" }; }
       }
     }
     return json({ ...out, terms: Boolean(terms), guard, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });

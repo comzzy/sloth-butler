@@ -581,3 +581,5 @@ p{text-wrap:pretty}
 .nav-more .chev{transition:transform .3s}.nav-more>button[aria-expanded=true] .chev{transform:rotate(180deg)}
 @media (max-width:640px){.nav-more>button{font-size:14px}}@media (max-width:480px){.nav-more>button{font-size:13px}}
 .head{grid-template-columns:calc(var(--bh)*5*.619) 1fr}
+.eval-note{max-width:52ch;text-wrap:pretty}
+@media (max-width:640px){.eval-head{margin-bottom:16px;gap:10px}.eval-head h3{font-size:19px}.bars{gap:12px}.bar-row{gap:4px}.bar-label{font-size:13px}.eval-grid{gap:18px}}

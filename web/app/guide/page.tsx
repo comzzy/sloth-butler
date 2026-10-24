@@ -42,19 +42,18 @@ const FAQ: [string, React.ReactNode][] = [
   ["Is my text stored?", <>No. There is no database. Your message and context go to the model on Tinker to write the reply, and the reply goes to ElevenLabs only if you press Play or Download. The server logs service errors, not your text. Your terms, follow-ups and log of protected hours and money live in your browser&apos;s local storage.</>],
   ["Why only one counter-offer?", <>Two or three options turn the reply into a negotiation. One clear option, like a paid add-on or a fixed payment date, keeps the conversation short and keeps your terms in place.</>],
   ["How is &ldquo;money protected&rdquo; counted?", <>You enter it. For a discount request it might be the discount you didn&apos;t give; for scope creep, the value of the work you didn&apos;t do for free; for a late invoice, the amount you asked for. Hours work the same way. The app adds up what you log, in the currency you choose.</>],
-  ["Which currencies and languages?", <>The log supports USD (default), EUR, GBP, CAD, AUD, INR, JPY, BRL, ZAR, MXN, CHF and SGD. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin. English and Pidgin were part of training; the other languages rely on the base model&apos;s own skill.</>],
+  ["Which currencies and languages?", <>The log supports USD (default), EUR, GBP, CAD, AUD, INR, JPY, BRL, ZAR, MXN, CHF and SGD. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin. All six languages were part of training.</>],
   ["Can it send the message for me?", <>No. It writes the reply. You read it, copy it or download the voice note, and send it yourself.</>],
   ["Is it free? Is it open source?", <>Free to use. The code, training data and eval scripts are MIT licensed: <a href="https://github.com/comzzy/sloth-butler">github.com/comzzy/sloth-butler</a>.</>],
   ["What are the limits?", <ul>
     <li>Replies can be formulaic, often &ldquo;I can&apos;t do X. I can do Y.&rdquo;</li>
     <li>It doesn&apos;t know your contract or your real calendar. Check the counter-offer is something you&apos;ll actually honour.</li>
-    <li>The adapter was trained on general requests; the situation picker steers it with extra instructions rather than new training.</li>
-    <li>In the tests, the training paid off most on rule-following and Pidgin; for plain English the judge was close to a tie.</li>
+    <li>The test scores come from one AI judge, not people. On 100 held-out messages, 63% of trained replies passed all five checks, up from 41% before training. That still leaves plenty of misses.</li>
+    <li>Pidgin improved (10% to 50% judged natural) but only 10 replies were tested, and no native speaker has rated them yet.</li>
   </ul>],
 ];
 
 const ROADMAP: [string, string][] = [
-  ["Training on business messages", "A second training round on real-style client, customer and invoice messages, so the situation picker isn't only steering the prompt."],
   ["Share to Sloth-Butler", "Send a message straight from email or a chat app instead of copy-pasting."],
   ["Reminders on your phone", "A notification when a follow-up is due, instead of checking the board."],
   ["Export your log", "Download your protected hours and money as CSV for your own records."],
@@ -120,7 +119,7 @@ export default function Guide() {
             <div className="g-two">
               <Reveal className="card g-card g-prose" delay={100} style={{ ["--c" as string]: C[2] }}>
                 <p>The model is <strong>Qwen3-8B</strong>, an open-weight model anyone can download.</p>
-                <p>I trained a small add-on for it (a LoRA adapter, rank 32) on <a href="https://thinkingmachines.ai/tinker/">Tinker</a> using 288 example replies. Every example had to pass a rule check first: clear answer in the first sentence, exactly one offer, 80 words max, no made-up excuses, right language and tone. Training took about 3 minutes. The situation you pick and your saved terms are added to the instructions, so the counter-offer fits the message.</p>
+                <p>I trained a small add-on for it (a LoRA adapter, rank 32) on <a href="https://thinkingmachines.ai/tinker/">Tinker</a> using 1,101 example replies to client, customer and invoice messages in six languages, over 204 training steps. Every reply is polite, firm and makes one concrete counter-offer. To test it, an AI judge scored 100 messages it never saw: a pass means at least 4/5. Replies that pass all five checks went from 41% to 63%, and they got shorter (51 to 34 words on average). The situation you pick and your saved terms are added to the instructions, so the counter-offer fits the message.</p>
                 <p><strong>Before training</strong> means plain Qwen3-8B with the same instructions. <strong>After training</strong> is the same model with the adapter on. The compare button on the main page shows both.</p>
                 <p>Voice is ElevenLabs, voice Alice. It only runs when you press Play or Download mp3.</p>
               </Reveal>

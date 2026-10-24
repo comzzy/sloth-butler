@@ -18,7 +18,7 @@ It is for the messages that cost you time and money: unpaid extra work, discount
 - **Tone and language.** `soft`, `firm` or `maybe-later`. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin.
 - **Ready to send.** Copy the reply, play it in the ElevenLabs voice Alice, or download it as an mp3 voice note for chat apps.
 - **A log of what you protected.** When you send a reply, log the hours and the money it protected. Pick your currency (USD by default; EUR, GBP, CAD, AUD, INR, JPY and more). Totals count up on the page. The log is stored in your browser's local storage only.
-- **Proof it's trained.** Lower on the page you can run the same message through plain Qwen3-8B and through Sloth-Butler side by side, and read the test results from 60 held-out requests.
+- **Proof it's trained.** Lower on the page you can run the same message through plain Qwen3-8B and through Sloth-Butler side by side, and read the test results from 100 held-out messages.
 
 ## How to use it
 
@@ -90,145 +90,46 @@ The web app is deployed on Vercel from the `master` branch. See `web/README.md` 
 
 ## The model
 
-The model is Qwen3-8B with a small LoRA adapter trained on Tinker for one narrow job: turning down a request clearly, with one concrete alternative. General chat models can do this, but in testing the base model often hedged ("maybe I can..."), offered two or three alternatives, or made up reasons. A small trained model does the job more consistently and cheaply.
-
-The rest of this README covers how the adapter was trained and tested.
-
-Reply rules the model is trained to follow:
-
-- Give the answer clearly in the first sentence.
-- Exactly one concrete counter-offer.
-- 80 words or fewer.
-- At most one apology.
-- No invented excuses (illness, emergencies, travel, fake conflicts).
-- No filler phrases ("I hope this finds you well", "rest assured", "I understand", em dashes, and so on).
-- Match the requested language and style.
-
-## Why open weights
-
-- It can be fine-tuned. The adapter is about 3 minutes of training and moves rule-following from 27% to 85% on held-out data.
-- Languages the base model handles badly can be fixed directly. Pidgin went from 4% judged correct to 88%.
-- Cheap. An 8B model with short outputs costs well under a hundredth of a cent per reply.
-- Swappable. The training script takes a base model name, and the adapter weights can be downloaded and run elsewhere.
-
-## Dataset
-
-All generation scripts are in `scripts/` and all data is in `data/`.
-
-- `scripts/gen_requests.py` asks `openai/gpt-oss-120b` (via Groq) for realistic dreaded messages across 12 categories (meeting invites, favours, boss asks, group chats, family, client scope creep, shift cover, landlord or neighbour, church or community volunteering, party invites, money requests, "pick your brain" asks) and 14 settings (startups, offices, shops, family and community group chats). After de-duplication: **370 requests**. Each was randomly assigned a style and a language (target 25% Pidgin; actual 115/370 = 31%).
-- `scripts/gen_replies.py` shuffles with seed 1234 and holds out **60 requests as the test set** (`data/test.jsonl`). These are never shown to the teacher or the trainer.
-- For the remaining 310, the teacher (`openai/gpt-oss-120b`, sampled on Tinker because Groq's free tier allows 8k tokens per minute) writes a reply. Each reply is run through `scripts/checks.py`; if it fails, the teacher gets up to 3 attempts. **288 passed and form `data/train.jsonl`**; the 22 that never passed are in `data/rejected.jsonl` with the rules they failed.
-
-Train set mix: 215 English, 73 Pidgin; 103 firm, 100 soft, 85 maybe-later.
-
-## The checker
-
-`scripts/checks.py` is plain regex and word counting, no model calls, so anyone can rerun it and get the same result. Rules: `decline_first`, `one_offer`, `max_80_words`, `no_double_apology`, `no_ai_tics`, `no_false_excuse`, `language_match`, `style_match`. The pattern lists are at the top of the file. It is a heuristic: see "What still fails" for its known errors.
-
-## Training
-
-`scripts/train.py`, a flat supervised loop adapted from `tinker-cookbook`'s `recipes/sl_loop.py`.
+Qwen3-8B with a LoRA adapter (rank 32) trained on Tinker for one job: a polite, firm reply to a client, customer or invoice message, with one concrete counter-offer that respects your terms.
 
 | Setting | Value |
 |---|---|
-| Base model | `Qwen/Qwen3-8B` |
-| Renderer | `qwen3_disable_thinking` (thinking disabled) |
-| Method | LoRA, rank 32 |
-| Loss | cross-entropy on the assistant reply only |
-| Examples | 288 |
-| Epochs / batch size / steps | 3 / 16 / 54 |
-| Learning rate | 0.0002, linear decay to 0 |
-| Shuffle seed | 0 |
-| Tokens processed | 233,418 |
-| Wall time | 3.3 minutes |
-| Estimated training cost | $0.10 (tokens x $0.44/M Tinker list price) |
+| Base model | `Qwen/Qwen3-8B` (thinking disabled) |
+| Method | LoRA, rank 32, supervised fine-tuning |
+| Training examples | 1,101 |
+| Languages | 6: English 527, French 137, Portuguese 125, German 111, Spanish 101, Nigerian Pidgin 100 |
+| Steps | 204 (3 epochs, batch 16, learning rate 2e-4 decaying to 0) |
+| Train loss | 2.90 at step 0, 0.44 at the last step |
+| Checkpoint | `tinker://ea588015-cff4-5702-99e8-ce0bf3d5af5b:train:0/sampler_weights/sloth-butler-replies` |
 
-Train NLL went from 3.69 at step 0 to 0.55 at the last step. The full per-step log is in `eval/training.json`.
-
-Total Tinker spend for the whole phase (teacher sampling, training, and both eval runs) was small; I did not read it from a bill, so I am only quoting the training estimate above.
-
-Checkpoint (sampler weights):
-
-```
-tinker://edb0b1c8-9aea-5b41-8fc5-a9a4df01009a:train:0/sampler_weights/sloth-butler-final
-```
-
-Sampling from it:
-
-```python
-import sys; sys.path.insert(0, "scripts")
-from tinker_chat import TinkerChat
-from common import SYSTEM_PROMPT, user_msg
-
-bot = TinkerChat("Qwen/Qwen3-8B", model_path="tinker://edb0b1c8-9aea-5b41-8fc5-a9a4df01009a:train:0/sampler_weights/sloth-butler-final",
-                 renderer_name="qwen3_disable_thinking")
-reply, meta = bot.chat([
-    {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": user_msg("Could you add two extra pages to the site at no charge?", "firm", "English")},
-])
-print(reply)
-```
-
-Access to a `tinker://` path requires a Tinker API key for the account that owns it.
+The full per-step log is in `eval/training.json`.
 
 ## Evaluation
 
-`scripts/eval.py` runs base Qwen3-8B and the fine-tune on the 60 held-out requests with the same system prompt, renderer, temperature (0.7) and sampling seed (2026). It then:
+Base Qwen3-8B and the trained adapter answered the same 100 held-out messages (never used in training) with the same prompt, temperature 0.7 and seed 2026. A judge model (`openai/gpt-oss-120b`) scored each reply from 1 to 5 on five criteria. A reply **passes** a criterion when it scores at least 4/5.
 
-- runs the checker on every reply,
-- asks a judge (`openai/gpt-oss-120b` on Groq, temperature 0) whether each Pidgin reply is natural, correct Nigerian Pidgin,
-- runs a blind pairwise comparison: the judge sees the request and both replies in random order (seed 2026) and answers "which would you actually send?".
-
-Raw outputs, checker results and judge reasons for every item are in `eval/outputs.jsonl`. The summary is in `eval/results.json` and `eval/results.md`.
-
-| Metric | Base | Fine-tuned |
+| Criterion | Before training | After training |
 |---|---|---|
-| Checker pass rate (all 8 rules) | 26.7% | 85.0% |
-|   rule: decline_first | 86.7% | 100.0% |
-|   rule: one_offer | 43.3% | 100.0% |
-|   rule: max_80_words | 96.7% | 100.0% |
-|   rule: no_double_apology | 100.0% | 100.0% |
-|   rule: no_ai_tics | 93.3% | 100.0% |
-|   rule: no_false_excuse | 96.7% | 98.3% |
-|   rule: language_match | 73.3% | 100.0% |
-|   rule: style_match | 81.7% | 85.0% |
-| Avg words per reply | 38.6 | 20.3 |
-| AI-tic hits per 100 replies | 6.7 | 0.0 |
-| Pidgin judged correct (n=24) | 4.2% | 87.5% |
-| Latency per reply, mean / median (s) | 1.65 / 1.48 | 2.57 / 1.54 |
-| Avg completion tokens | 58.2 | 29.1 |
-| Est. cost per reply (USD) | $0.000082 | $0.000064 |
+| Sendable | 84% | 93% |
+| Firm but polite | 84% | 97% |
+| Has a counter-offer | 74% | 90% |
+| Fits the situation | 67% | 76% |
+| Correct language | 90% | 94% |
+| **Passes all five** | **41%** | **63%** |
+| Pidgin sounds natural (10 replies) | 10% | 50% |
+| Average words per reply | 51.1 | 34.4 |
 
-## Blind pairwise preference ("which would you actually send?")
+In a blind side-by-side, the judge preferred the trained reply 56 times out of 100.
 
-Reply order randomized per item (seed 2026). Fine-tuned preferred **38/60**, base 22/60.
+Raw outputs and judge reasons are in `eval/outputs.jsonl`; the summary is in `eval/results.json` and `eval/results.md`.
 
-| Language | Fine-tuned wins | Base wins |
-|---|---|---|
-| English | 16 | 20 |
-| Nigerian Pidgin | 22 | 2 |
+### How far to trust these numbers
 
-Cost is estimated from token counts at Tinker list prices for Qwen3-8B (prefill $0.195/M, sample $0.60/M, as of 2026-10-19); it is not read from a bill. Latency is wall-clock time of one `sample` call from this machine, including network, with 8 concurrent requests.
-
-
-## Examples
-
-Every test reply, before and after training, with checker and judge output, is in `eval/outputs.jsonl`; a readable selection is in `eval/results.md`.
-
-## What still fails
-
-
-- English quality is not better by judge preference. On English items the judge preferred the base model 20 to 16. The fine-tune is shorter and more uniform; the judge often rewarded the base model's extra warmth and context. Most of the pairwise win comes from Pidgin (22 to 2).
-- Replies are formulaic: almost always "I can't X. I can Y." This passes the checker but reads flat, especially for the `soft` style.
-- The training data covered general requests (meetings, favours, client asks, money requests). The business situations in the web app steer the model through the prompt, not through new training, so some replies still read like a personal no rather than a business reply.
-- Some counter-offers do not make sense: offering to bring dessert to a potluck three days after it happened, offering a gift "on the day of the party" after declining the party, offering a partial payment on a debt the user owes.
-- The fine-tune sometimes adds "Sorry for any inconvenience", a corporate phrase not on the tic list.
-- `maybe-later` style fails most often (style_match 85%): the model gives a date for the counter-offer but does not frame it as revisiting the request.
-- The checker is regex-based. It has false positives (one fine-tune reply was flagged as a false excuse because the request names "Toronto General Hospital") and false negatives (it cannot tell whether an offer is sensible). Treat its numbers as a lower bound on rule-following, not a quality score.
-- The judge is a single model (gpt-oss-120b), which is also the teacher that wrote the training data. That can bias the judge toward the fine-tune's style. No human rating has been done yet.
-- Pidgin correctness is judged by the same LLM, not by native speakers. n=24.
-- Test requests were generated by the same teacher as training requests, so they are in-distribution. Real user messages may be harder.
-- Single run, single seed. No confidence intervals.
+- The judge is a single LLM, and the same model family wrote the training replies, so it may favour the trained model's style. No human rating has been done yet.
+- 100 test messages is small. A difference of a few points on one criterion is within noise; the "passes all five" jump (41% to 63%) and the counter-offer gain are the clearest signals.
+- Pidgin is judged by the same LLM on only 10 replies, not by native speakers. Treat 50% as "better, still not good".
+- Test messages were generated the same way as training messages, so real messages may be harder.
+- The app also checks every reply against your terms in code (minimum price, including after a discount, and maximum discount) and regenerates it if a number breaks them, so the model's numbers are never the only safeguard.
 
 ## Reproduce
 
@@ -254,9 +155,9 @@ To check my numbers without regenerating data, skip the first two steps and use 
 ```
 data/
   requests.jsonl    all 370 generated requests with style/language assignment
-  train.jsonl       288 filtered training examples
+  train.jsonl       1,101 training examples
   rejected.jsonl    22 requests whose teacher replies never passed the checker
-  test.jsonl        60 held-out test requests
+  test.jsonl        100 held-out test messages
 scripts/
   common.py         system prompt, prompt format, Groq client
   checks.py         deterministic reply checker

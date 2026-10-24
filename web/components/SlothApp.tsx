@@ -557,7 +557,7 @@ export function SlothApp() {
   );
 }
 
-const RULE_LABELS: Record<string, string> = { decline_first: "Says no right away", one_offer: "Offers exactly one alternative", max_80_words: "Short (80 words or less)", no_double_apology: "Doesn't over-apologise", no_ai_tics: "No robotic filler", no_false_excuse: "Doesn't make up excuses", language_match: "Replies in the right language", style_match: "Matches the tone you picked" };
+const RULE_LABELS: Record<string, string> = { sendable: "Sendable", firm_but_polite: "Firm but polite", has_counter_offer: "Has a counter-offer", counter_offer: "Has a counter-offer", fits_scenario: "Fits the situation", fits_situation: "Fits the situation", correct_language: "Correct language" };
 const pct = (x: unknown) => typeof x === "number" ? `${Math.round(x * 100)}%` : "n/a";
 const num = (x: unknown, d = 1) => typeof x === "number" ? x.toFixed(d) : "n/a";
 
@@ -571,15 +571,15 @@ function EvalScores({ data }: { data: any }) {
   const [ref, seen] = useInView<HTMLDivElement>();
   const f5 = FEATURES[4];
   const b = data.base || {}, f = data.finetuned || {};
-  const rows: [string, number, number][] = [["Gets everything right", b.pass_rate, f.pass_rate], ...Object.keys(f.per_rule || {}).map(k => [RULE_LABELS[k] ?? k.replace(/_/g, " "), b.per_rule?.[k], f.per_rule?.[k]] as [string, number, number])];
-  if (typeof f.pidgin_correct_rate === "number") rows.push(["Pidgin replies judged natural", b.pidgin_correct_rate, f.pidgin_correct_rate]);
+  const rows: [string, number, number][] = [["Passes all five", b.pass_rate, f.pass_rate], ...Object.keys(f.per_rule || {}).map(k => [RULE_LABELS[k] ?? k.replace(/_/g, " "), b.per_rule?.[k], f.per_rule?.[k]] as [string, number, number])];
+  if (typeof f.pidgin_correct_rate === "number") rows.push([`Pidgin sounds natural${f.pidgin_n ? ` (${f.pidgin_n} replies)` : ""}`, b.pidgin_correct_rate, f.pidgin_correct_rate]);
   const p = data.pairwise;
   const tiles: [string, string, string][] = [["Words per reply", num(b.avg_words), num(f.avg_words)], ["Robotic phrases per 100 replies", num(b.ai_tics_per_100), num(f.ai_tics_per_100)], ["Time to reply", `${num(b.latency_s_median, 2)}s`, `${num(f.latency_s_median, 2)}s`]];
   return (
     <Reveal className="eval card" style={{ ["--c" as string]: f5.color, ["--cd" as string]: f5.dark }} delay={0}>
       <div ref={ref} className={`eval-in ${seen ? "seen" : ""}`}>
         <header className="eval-head">
-          <div><span className="card-step">Test results</span><h3>Tested on {data.n_test ?? "?"} requests it never saw</h3><p className="muted sm">Scored by rule checks and a second model ({data.judge ?? "n/a"})</p></div>
+          <div><span className="card-step">Test results</span><h3>Tested on {data.n_test ?? "?"} held-out messages</h3><p className="muted sm eval-note">A pass means a judge score of at least 4/5 on {data.n_test ?? 100} held-out messages.</p></div>
           <div className="legend"><span><i className="sw base" />Before training</span><span><i className="sw ft" />After training</span></div>
         </header>
         <div className="eval-grid">
