@@ -1,6 +1,6 @@
 # Sloth-Butler
 
-Calm replies to the messages you dread. For the messages that cost you time and money.
+Sloth-Butler handles the messages you dread replying to.
 
 Live: **https://sloth-butler.vercel.app** · Guide and FAQ: https://sloth-butler.vercel.app/guide
 
