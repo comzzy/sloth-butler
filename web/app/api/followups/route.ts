@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       const opener = fixOpener(r.text, s.kind);
       const pinned = pinDates(opener.text, deadlines[i], ask);
       let text = pinned.text;
-      if (terms && checkTerms(text, terms).length) text = enforceTerms(text, terms);
+      if (terms && checkTerms(text, terms).length) text = enforceTerms(text, terms, language);
       if (s.kind === "final" && scenario === "late-invoice" && terms?.lateFee && !/late fee|fee/i.test(text)) text = `${text}\n\nAfter that date, my late fee applies: ${terms.lateFee}.`;
       if (startsWithRefusal(text)) text = fixOpener(text, s.kind).text;
       return { kind: s.kind, title: s.title, offsetDays: days[i], sendOn: sendAt[i].toISOString().slice(0, 10), deadline: deadlines[i], text, fixes: { opener: opener.changed, dates: pinned.fixed } };

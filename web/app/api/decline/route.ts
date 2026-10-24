@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         let retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: fix }).catch(() => null);
         if (retry && checkTerms(retry.text, terms).length) retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: fix }).catch(() => null);
         if (retry && !checkTerms(retry.text, terms).length) { out = retry; guard = { issues, action: "regenerated" }; }
-        else { out = { ...out, text: enforceTerms(out.text, terms) }; guard = { issues, action: "corrected" }; }
+        else { out = { ...out, text: enforceTerms(out.text, terms, language) }; guard = { issues, action: "corrected" }; }
       }
     }
     return json({ ...out, terms: Boolean(terms), guard, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });

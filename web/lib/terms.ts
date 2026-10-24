@@ -122,16 +122,24 @@ export function checkTerms(text: string, t: Terms) {
   return issues;
 }
 
-export function correctionLine(t: Terms) {
-  const c = t.currency || "USD"; const bits: string[] = [];
-  if (t.minProject !== undefined) bits.push(`my minimum for a project is ${fmt(t.minProject, c)}`);
-  if (t.maxDiscount !== undefined) bits.push(t.maxDiscount === 0 ? "I don't offer discounts" : `the most I can take off is ${t.maxDiscount}%`);
-  return bits.length ? `To be clear, ${bits.join(" and ")}.` : "";
+const CORR: Record<string, [string, (m: string) => string, string, (d: number) => string, string]> = {
+  English: ["To be clear, ", m => `my minimum for a project is ${m}`, "I don't offer discounts", d => `the most I can take off is ${d}%`, " and "],
+  Spanish: ["Para que quede claro, ", m => `mi mínimo por proyecto es ${m}`, "no hago descuentos", d => `el descuento máximo que puedo dar es del ${d}%`, " y "],
+  French: ["Pour être clair, ", m => `mon minimum pour un projet est de ${m}`, "je ne fais pas de remise", d => `la remise maximale que je peux accorder est de ${d} %`, " et "],
+  Portuguese: ["Para deixar claro, ", m => `o meu mínimo por projeto é ${m}`, "não dou descontos", d => `o desconto máximo que posso dar é ${d}%`, " e "],
+  German: ["Zur Klarheit: ", m => `mein Mindestpreis für ein Projekt liegt bei ${m}`, "ich gebe keine Rabatte", d => `ich kann höchstens ${d} % Rabatt geben`, " und "],
+  "Nigerian Pidgin": ["Make e clear, ", m => `my minimum for one project na ${m}`, "I no dey give discount", d => `the highest discount wey I fit give na ${d}%`, ", and "],
+};
+export function correctionLine(t: Terms, language = "English") {
+  const c = t.currency || "USD"; const [lead, min, none, max, and] = CORR[language] || CORR.English; const bits: string[] = [];
+  if (t.minProject !== undefined) bits.push(min(fmt(t.minProject, c)));
+  if (t.maxDiscount !== undefined) bits.push(t.maxDiscount === 0 ? none : max(t.maxDiscount));
+  return bits.length ? `${lead}${bits.join(and)}.` : "";
 }
 
 /** Last resort: drop every sentence that breaks the terms, then state the real terms. */
-export function enforceTerms(text: string, t: Terms) {
+export function enforceTerms(text: string, t: Terms, language = "English") {
   const parts = text.match(/(?:[^.!?\n]|[.!?](?=\S))+(?:[.!?]+(?=\s|$)|\n+|$)/g) || [text];
   const kept = parts.filter((s, i) => !checkTerms(s, t).length && !(i > 0 && checkTerms(parts[i - 1] + s, t).length));
-  return `${kept.join("").trim()}\n\n${correctionLine(t)}`.trim();
+  return `${kept.join("").trim()}\n\n${correctionLine(t, language)}`.trim();
 }
