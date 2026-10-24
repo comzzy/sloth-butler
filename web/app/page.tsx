@@ -24,8 +24,8 @@ export default function Home() {
           </div>
           <BandedHead />
         </section>
-        <div id="app"><SlothApp /></div>
       </main>
+      <div id="app"><SlothApp /></div>
       <footer className="site-footer">
         <Logo size={28} /><span>Sloth Butler. Open source under the MIT licence. Replies are suggestions; read before you send.</span>
       </footer>

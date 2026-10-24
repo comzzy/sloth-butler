@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FEATURES } from "@/lib/features";
+import { Logo } from "./Logo";
 import { IconLedger, IconNegotiate, IconProof, IconStyle, IconVoice } from "./icons";
 
 type Style = "soft" | "firm" | "maybe-later";
@@ -10,29 +11,99 @@ type Side = Reply | { error: string };
 type Ledger = { declines: number; minutesPer: number; totalMinutes: number };
 
 const EXAMPLES = [
-  "Hi! Could you join a 90 minute planning call on Saturday morning? We need everyone there.",
-  "Can you help me move flat this weekend? It should only take the whole day.",
-  "Quick one: can you review these three decks before tomorrow 9am?",
-];
+  ["Weekend call", "Hi! Could you join a 90 minute planning call on Saturday morning? We need everyone there."],
+  ["Moving day", "Can you help me move flat this weekend? It should only take the whole day."],
+  ["Deck review", "Quick one: can you review these three decks before tomorrow 9am?"],
+] as const;
+const STYLES: { v: Style; d: string }[] = [{ v: "soft", d: "Warm and gentle" }, { v: "firm", d: "Short and clear" }, { v: "maybe-later", d: "Leaves a door open" }];
 const LEDGER_KEY = "sloth-butler-ledger-v1";
 const DEFAULT_LEDGER: Ledger = { declines: 0, minutesPer: 45, totalMinutes: 0 };
+const ICONS = [IconNegotiate, IconStyle, IconVoice, IconLedger, IconProof];
 
-function Section({ n, children, className = "" }: { n: number; children: React.ReactNode; className?: string }) {
-  const f = FEATURES[n - 1];
-  const Icon = [IconNegotiate, IconStyle, IconVoice, IconLedger, IconProof][n - 1];
+/** Adds .in when the element scrolls into view (once). */
+function useInView<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    if (!("IntersectionObserver" in window)) { setSeen(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+  return [ref, seen] as const;
+}
+
+function Reveal({ as: Tag = "div", delay = 0, className = "", children, ...rest }: { as?: any; delay?: number; className?: string; children: React.ReactNode; [k: string]: any }) {
+  const [ref, seen] = useInView<HTMLElement>();
+  return <Tag ref={ref} className={`rv ${seen ? "in" : ""} ${className}`} style={{ ["--d" as string]: `${delay}ms`, ...(rest.style || {}) }} {...rest}>{children}</Tag>;
+}
+
+function useCountUp(target: number, run: boolean, ms = 1600) {
+  const [v, setV] = useState(0);
+  const from = useRef(0);
+  useEffect(() => {
+    if (!run) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const start = from.current; if (reduce || start === target) { setV(target); from.current = target; return; }
+    let raf = 0; const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 4);
+      setV(start + (target - start) * e);
+      if (p < 1) raf = requestAnimationFrame(tick); else from.current = target;
+    };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [target, run, ms]);
+  return v;
+}
+
+function Card({ n, className = "", delay = 0, children, aside }: { n: number; className?: string; delay?: number; children: React.ReactNode; aside?: React.ReactNode }) {
+  const f = FEATURES[n - 1]; const Icon = ICONS[n - 1];
   return (
-    <section id={f.id} className={`feature ${className}`} style={{ ["--c" as string]: f.color, ["--cd" as string]: f.dark, ["--ct" as string]: f.text }} aria-labelledby={`${f.id}-h`}>
-      <header className="feature-head">
-        <span className="mini-badge" aria-hidden="true"><Icon width="34" height="34" color="#fff" /></span>
-        <span className="feature-num" aria-hidden="true">{n}</span>
-        <div>
-          <h2 id={`${f.id}-h`}>{f.title}</h2>
-          <p className="feature-line">{f.line}</p>
+    <Reveal as="section" id={f.id} delay={delay} className={`card ${className}`} aria-labelledby={`${f.id}-h`}
+      style={{ ["--c" as string]: f.color, ["--cd" as string]: f.dark }}>
+      <header className="card-head">
+        <span className="card-icon" aria-hidden="true"><Icon width="26" height="26" /></span>
+        <div className="card-title">
+          <span className="card-step">0{n}</span>
+          <h3 id={`${f.id}-h`}>{f.title}</h3>
+          <p>{f.line}</p>
         </div>
+        {aside}
       </header>
       {children}
-    </section>
+    </Reveal>
   );
+}
+
+function Empty({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="empty">
+      <div className="empty-art" aria-hidden="true"><span className="ring r1" /><span className="ring r2" /><span className="empty-icon">{icon}</span></div>
+      <p className="empty-title">{title}</p>
+      <p className="empty-body">{body}</p>
+    </div>
+  );
+}
+
+function Thinking({ label }: { label: string }) {
+  return (
+    <div className="thinking" role="status">
+      <span className="sloth-bob" aria-hidden="true"><Logo size={44} title="" /></span>
+      <div>
+        <p className="thinking-label">{label}<span className="dots" aria-hidden="true"><i /><i /><i /></span></p>
+        <div className="shimmer" aria-hidden="true"><span /><span /><span /></div>
+      </div>
+    </div>
+  );
+}
+
+function RevealText({ text, className = "" }: { text: string; className?: string }) {
+  const words = text.split(/(\s+)/);
+  return <p className={`reveal-text ${className}`} aria-label={text}>{words.map((w, i) => /\s+/.test(w) ? w : <span key={i} aria-hidden="true" style={{ ["--i" as string]: i / 2 }}>{w}</span>)}</p>;
+}
+
+function Wave({ on }: { on: boolean }) {
+  return <span className={`wave ${on ? "on" : ""}`} aria-hidden="true">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ ["--i" as string]: i }} />)}</span>;
 }
 
 function fmtMinutes(m: number) {
@@ -55,9 +126,10 @@ export function SlothApp() {
   const [comparing, setComparing] = useState(false);
   const [compareError, setCompareError] = useState("");
   const [evalData, setEvalData] = useState<any>(null);
-  const [evalMsg, setEvalMsg] = useState("Loading eval results...");
+  const [evalMsg, setEvalMsg] = useState("Loading eval results");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlCache = useRef(new Map<string, string>());
+  const replyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try { const s = localStorage.getItem(LEDGER_KEY); if (s) setLedger({ ...DEFAULT_LEDGER, ...JSON.parse(s) }); } catch {}
@@ -67,9 +139,10 @@ export function SlothApp() {
 
   const decline = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
-    setError(""); setCopied(false); setVoiceState("idle"); setVoiceError("");
+    setError(""); setCopied(false); setVoiceState("idle"); setVoiceError(""); audioRef.current?.pause();
     if (request.trim().length < 5) { setError("Paste the request you want to decline first."); return; }
-    setLoading(true);
+    setLoading(true); setReply(null);
+    if (window.innerWidth < 960) replyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     try {
       const r = await fetch("/api/decline", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ request, style, language }) });
       const d = await r.json();
@@ -110,7 +183,7 @@ export function SlothApp() {
 
   const runCompare = async () => {
     setCompareError("");
-    const input = request.trim() || EXAMPLES[0];
+    const input = request.trim() || EXAMPLES[0][1];
     if (!request.trim()) setRequest(input);
     setComparing(true); setCompare(null);
     try {
@@ -123,126 +196,190 @@ export function SlothApp() {
   };
 
   const words = reply ? reply.text.split(/\s+/).filter(Boolean).length : 0;
+  const [ledgerRef, ledgerSeen] = useInView<HTMLDivElement>();
+  const nDecl = useCountUp(ledger.declines, ledgerSeen);
+  const nMin = useCountUp(ledger.totalMinutes, ledgerSeen);
+  const hours = ledger.totalMinutes / 60;
 
   return (
-    <div className="app">
-      <form onSubmit={decline} className="app-grid">
-        <Section n={1}>
-          <label htmlFor="req" className="label">The request you dread</label>
-          <textarea id="req" value={request} onChange={e => setRequest(e.target.value)} maxLength={2000} rows={6}
-            placeholder="Paste the meeting invite, favour or ask here." aria-describedby="req-help" />
-          <div id="req-help" className="help">
-            <span>{request.length}/2000</span>
-            <span className="examples">Try:{" "}
-              {EXAMPLES.map((x, i) => <button type="button" key={i} className="chip" onClick={() => setRequest(x)}>{["Weekend call", "Moving day", "Deck review"][i]}</button>)}
-            </span>
-          </div>
-        </Section>
+    <div className="stage">
+      <div className="stage-inner">
+        <Reveal className="stage-head" id="negotiate-top">
+          <span className="eyebrow"><span className="eyebrow-dot" />Try it</span>
+          <h2>Write the reply you keep putting off.</h2>
+          <p>Paste the ask, pick a tone, and get a short, kind no with one counter-offer.</p>
+        </Reveal>
 
-        <Section n={2}>
-          <fieldset className="seg">
-            <legend className="label">Style</legend>
-            {(["soft", "firm", "maybe-later"] as Style[]).map(s => (
-              <label key={s} className={style === s ? "on" : ""}><input type="radio" name="style" value={s} checked={style === s} onChange={() => setStyle(s)} />{s}</label>
-            ))}
-          </fieldset>
-          <fieldset className="seg">
-            <legend className="label">Language</legend>
-            {(["English", "Nigerian Pidgin"] as Language[]).map(l => (
-              <label key={l} className={language === l ? "on" : ""}><input type="radio" name="language" value={l} checked={language === l} onChange={() => setLanguage(l)} />{l}</label>
-            ))}
-          </fieldset>
-          <button type="submit" className="primary" disabled={loading} aria-busy={loading}>
-            {loading ? <><span className="spinner" aria-hidden="true" /> Writing your reply...</> : "Decline for me"}
-          </button>
-          {error && <p className="error" role="alert">{error}</p>}
-        </Section>
-
-        <Section n={3} className="reply-section">
-          <div className="reply-card" aria-live="polite">
-            {reply ? (
-              <>
-                <p className="reply-text">{reply.text}</p>
-                <p className="meta">{words} words · {style} · {language} · {reply.variant === "finetune" ? "fine-tuned model" : "base model"} · {(reply.latencyMs / 1000).toFixed(1)}s</p>
-                {reply.fallback && <p className="note">{reply.fallback}</p>}
-                <div className="row">
-                  <button type="button" className="secondary" onClick={copy}>{copied ? "Copied" : "Copy reply"}</button>
-                  <button type="button" className="secondary" onClick={hear} disabled={voiceState === "loading"} aria-busy={voiceState === "loading"}>
-                    {voiceState === "loading" ? "Preparing voice..." : voiceState === "playing" ? "Stop" : "Hear it"}
-                  </button>
+        <form onSubmit={decline} className="studio">
+          <div className="studio-left">
+            <Card n={1} delay={0}>
+              <div className="field">
+                <label htmlFor="req" className="label">The request you dread</label>
+                <textarea id="req" value={request} onChange={e => setRequest(e.target.value)} maxLength={2000} rows={6}
+                  placeholder="Paste the meeting invite, favour or ask here." aria-describedby="req-help" />
+                <div id="req-help" className="field-foot">
+                  <div className="examples">
+                    <span className="muted">Examples</span>
+                    {EXAMPLES.map(([k, x]) => <button type="button" key={k} className={`chip ${request === x ? "on" : ""}`} onClick={() => setRequest(x)}>{k}</button>)}
+                  </div>
+                  <span className="count">{request.length}/2000</span>
                 </div>
-                {voiceError && <p className="error" role="alert">{voiceError}</p>}
-              </>
-            ) : <p className="placeholder">Your reply will appear here. Press Hear it to have the butler read it aloud, followed by a short chime.</p>}
-          </div>
-        </Section>
-      </form>
+              </div>
+            </Card>
 
-      <Section n={4}>
-        <div className="ledger">
-          <div className="stat"><span className="stat-num">{ledger.declines}</span><span className="stat-label">favours and meetings declined</span></div>
-          <div className="stat"><span className="stat-num">{fmtMinutes(ledger.totalMinutes)}</span><span className="stat-label">estimated time kept</span></div>
-        </div>
-        <div className="assume">
-          <label htmlFor="mins">Minutes each request would have cost you</label>
-          <input id="mins" type="number" min={5} max={600} step={5} value={ledger.minutesPer}
-            onChange={e => { const v = Math.max(5, Math.min(600, Number(e.target.value) || 5)); saveLedger({ ...ledger, minutesPer: v }); }} />
-        </div>
-        <p className="help-text">This is an estimate, not a measurement. Each decline adds the number above. Change it to match your week. The tally lives only in this browser.</p>
-        <button type="button" className="link-btn" onClick={() => saveLedger({ ...DEFAULT_LEDGER, minutesPer: ledger.minutesPer })}>Reset ledger</button>
-      </Section>
-
-      <Section n={5}>
-        <p className="help-text">Run the same request, style and language through the base model and the fine-tune. Uses the request above, or an example if it is empty.</p>
-        <button type="button" className="secondary" onClick={runCompare} disabled={comparing} aria-busy={comparing}>{comparing ? "Running both models..." : "Compare base vs fine-tune"}</button>
-        {compareError && <p className="error" role="alert">{compareError}</p>}
-        {compare && (
-          <div className="compare" aria-live="polite">
-            {(["base", "finetune"] as const).map(k => {
-              const s = compare[k];
-              return (
-                <div key={k} className={`compare-col ${k}`}>
-                  <h3>{k === "base" ? "Base model" : "Fine-tuned"}</h3>
-                  {"error" in s ? <p className="error">{s.error}</p> : <>
-                    <p className="reply-text small">{s.text}</p>
-                    <p className="meta">{s.text.split(/\s+/).length} words · {(s.latencyMs / 1000).toFixed(1)}s</p>
-                  </>}
+            <Card n={2} delay={120}>
+              <fieldset className="opt">
+                <legend className="label">Style</legend>
+                <div className="opt-grid three">
+                  {STYLES.map(s => (
+                    <label key={s.v} className={`opt-item ${style === s.v ? "on" : ""}`}>
+                      <input type="radio" name="style" value={s.v} checked={style === s.v} onChange={() => setStyle(s.v)} />
+                      <strong>{s.v}</strong><span>{s.d}</span>
+                    </label>
+                  ))}
                 </div>
-              );
-            })}
+              </fieldset>
+              <fieldset className="opt">
+                <legend className="label">Language</legend>
+                <div className="seg2" data-pos={language === "English" ? 0 : 1}>
+                  <span className="seg2-thumb" aria-hidden="true" />
+                  {(["English", "Nigerian Pidgin"] as Language[]).map(l => (
+                    <label key={l} className={language === l ? "on" : ""}><input type="radio" name="language" value={l} checked={language === l} onChange={() => setLanguage(l)} />{l}</label>
+                  ))}
+                </div>
+              </fieldset>
+              <button type="submit" className="btn-primary" disabled={loading} aria-busy={loading}>
+                {loading ? <><span className="spinner" aria-hidden="true" />Writing your reply</> : <>Decline for me<span className="arrow" aria-hidden="true">→</span></>}
+              </button>
+              {error && <p className="error" role="alert">{error}</p>}
+            </Card>
           </div>
-        )}
-        <EvalTable data={evalData} msg={evalMsg} />
-      </Section>
+
+          <div className="studio-right" ref={replyRef}>
+            <Card n={3} delay={240} className="reply-card">
+              <div className="reply-body" aria-live="polite">
+                {loading ? <Thinking label="The butler is writing" /> : reply ? (
+                  <div className="reply-filled" key={reply.text}>
+                    <div className="bubble"><RevealText text={reply.text} /></div>
+                    <ul className="tags">
+                      <li>{words} words</li><li>{style}</li><li>{language}</li>
+                      <li>{reply.variant === "finetune" ? "Fine-tuned model" : "Base model"}</li><li>{(reply.latencyMs / 1000).toFixed(1)}s</li>
+                    </ul>
+                    {reply.fallback && <p className="note">{reply.fallback}</p>}
+                    <div className="player">
+                      <button type="button" className={`play ${voiceState}`} onClick={hear} disabled={voiceState === "loading"} aria-busy={voiceState === "loading"} aria-label={voiceState === "playing" ? "Stop" : "Hear it"}>
+                        {voiceState === "loading" ? <span className="spinner dark" /> : voiceState === "playing" ? <span className="stop-ico" /> : <span className="play-ico" />}
+                      </button>
+                      <div className="player-mid">
+                        <strong>{voiceState === "loading" ? "Preparing voice" : voiceState === "playing" ? "Playing" : "Hear it"}</strong>
+                        <span>Alice, calm British voice</span>
+                      </div>
+                      <Wave on={voiceState === "playing"} />
+                    </div>
+                    <div className="actions">
+                      <button type="button" className="btn-ghost" onClick={copy}>{copied ? "Copied" : "Copy reply"}</button>
+                      <button type="button" className="btn-ghost" onClick={() => decline()}>Try again</button>
+                    </div>
+                    {voiceError && <p className="error" role="alert">{voiceError}</p>}
+                  </div>
+                ) : <Empty icon={<IconVoice width="34" height="34" />} title="Your reply will appear here" body="Then press play to hear the butler read it aloud." />}
+              </div>
+            </Card>
+          </div>
+        </form>
+
+        <Reveal className="stage-head sub" delay={0}>
+          <span className="eyebrow"><span className="eyebrow-dot" />Your numbers</span>
+          <h2>Time kept, and how the model does.</h2>
+        </Reveal>
+
+        <div className="dash">
+          <Card n={4} className="ledger-card" aside={<button type="button" className="btn-ghost sm" onClick={() => saveLedger({ ...DEFAULT_LEDGER, minutesPer: ledger.minutesPer })}>Reset</button>}>
+            <div ref={ledgerRef} className="stats">
+              <div className="stat"><span className="stat-num">{Math.round(nDecl)}</span><span className="stat-label">Requests declined</span></div>
+              <div className="stat"><span className="stat-num">{fmtMinutes(nMin)}</span><span className="stat-label">Time kept, estimated</span></div>
+            </div>
+            <div className="meter" aria-hidden="true"><span style={{ width: ledgerSeen ? `${Math.min(100, (hours / 8) * 100)}%` : 0 }} /></div>
+            <p className="meter-cap">{hours >= 8 ? "A full working day kept." : `${fmtMinutes(Math.max(0, 480 - ledger.totalMinutes))} to a full working day`}</p>
+            <div className="stepper">
+              <label htmlFor="mins">Minutes each request costs</label>
+              <div className="stepper-ctl">
+                <button type="button" aria-label="Less" onClick={() => saveLedger({ ...ledger, minutesPer: Math.max(5, ledger.minutesPer - 5) })}>−</button>
+                <input id="mins" type="number" min={5} max={600} step={5} value={ledger.minutesPer}
+                  onChange={e => { const v = Math.max(5, Math.min(600, Number(e.target.value) || 5)); saveLedger({ ...ledger, minutesPer: v }); }} />
+                <button type="button" aria-label="More" onClick={() => saveLedger({ ...ledger, minutesPer: Math.min(600, ledger.minutesPer + 5) })}>+</button>
+              </div>
+            </div>
+            <p className="fine">An estimate. Stored only in this browser.</p>
+          </Card>
+
+          <Card n={5} delay={120} className="proof-card">
+            <div className="proof-top">
+              <p className="muted">Run your request through the base model and the fine-tune, side by side.</p>
+              <button type="button" className="btn-secondary" onClick={runCompare} disabled={comparing} aria-busy={comparing}>{comparing ? <><span className="spinner" />Running both</> : "Compare models"}</button>
+            </div>
+            {compareError && <p className="error" role="alert">{compareError}</p>}
+            <div className="compare" aria-live="polite">
+              {(["base", "finetune"] as const).map(k => {
+                const s = compare?.[k];
+                return (
+                  <div key={k} className={`compare-col ${k}`}>
+                    <div className="compare-head"><span className="pill">{k === "base" ? "Base Qwen3-8B" : "Fine-tuned"}</span>{s && !("error" in s) && <span className="muted sm">{s.text.split(/\s+/).length} words · {(s.latencyMs / 1000).toFixed(1)}s</span>}</div>
+                    {comparing ? <div className="shimmer tall" aria-hidden="true"><span /><span /><span /></div>
+                      : s ? ("error" in s ? <p className="error">{s.error}</p> : <RevealText text={s.text} className="small" />)
+                      : <p className="ghost-line">{k === "base" ? "Base reply shows here" : "Fine-tuned reply shows here"}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+
+        <EvalPanel data={evalData} msg={evalMsg} />
+      </div>
     </div>
   );
 }
 
 const RULE_LABELS: Record<string, string> = { decline_first: "Declines in the first sentence", one_offer: "Exactly one counter-offer", max_80_words: "80 words or fewer", no_double_apology: "At most one apology", no_ai_tics: "No filler phrases", no_false_excuse: "No invented excuses", language_match: "Right language", style_match: "Right style" };
+const pct = (x: unknown) => typeof x === "number" ? `${Math.round(x * 100)}%` : "n/a";
+const num = (x: unknown, d = 1) => typeof x === "number" ? x.toFixed(d) : "n/a";
 
-function pct(x: unknown) { return typeof x === "number" ? `${Math.round(x * 100)}%` : "n/a"; }
-function num(x: unknown, d = 1) { return typeof x === "number" ? x.toFixed(d) : "n/a"; }
-
-function EvalTable({ data, msg }: { data: any; msg: string }) {
-  if (!data) return <p className="note">{msg}</p>;
+function EvalPanel({ data, msg }: { data: any; msg: string }) {
+  const [ref, seen] = useInView<HTMLDivElement>();
+  const f5 = FEATURES[4];
+  if (!data) return <div className="eval card" style={{ ["--c" as string]: f5.color }}><Empty icon={<IconProof width="34" height="34" />} title="Scores" body={msg} /></div>;
   const b = data.base || {}, f = data.finetuned || {};
-  const rows: [string, string, string][] = [
-    ["Passes all rule checks", pct(b.pass_rate), pct(f.pass_rate)],
-    ...Object.keys(f.per_rule || {}).map(k => [RULE_LABELS[k] ?? k.replace(/_/g, " "), pct(b.per_rule?.[k]), pct(f.per_rule?.[k])] as [string, string, string]),
-    ["Average words", num(b.avg_words), num(f.avg_words)],
-    ["Filler phrases per 100 replies", num(b.ai_tics_per_100), num(f.ai_tics_per_100)],
-    ["Pidgin judged natural", pct(b.pidgin_correct_rate), pct(f.pidgin_correct_rate)],
-    ["Median latency (s)", num(b.latency_s_median, 2), num(f.latency_s_median, 2)],
-  ];
+  const rows: [string, number, number][] = [["Passes every rule", b.pass_rate, f.pass_rate], ...Object.keys(f.per_rule || {}).map(k => [RULE_LABELS[k] ?? k.replace(/_/g, " "), b.per_rule?.[k], f.per_rule?.[k]] as [string, number, number])];
+  if (typeof f.pidgin_correct_rate === "number") rows.push(["Pidgin judged natural", b.pidgin_correct_rate, f.pidgin_correct_rate]);
   const p = data.pairwise;
+  const tiles: [string, string, string][] = [["Average words", num(b.avg_words), num(f.avg_words)], ["Filler per 100 replies", num(b.ai_tics_per_100), num(f.ai_tics_per_100)], ["Median latency", `${num(b.latency_s_median, 2)}s`, `${num(f.latency_s_median, 2)}s`]];
   return (
-    <div className="table-wrap">
-      <table>
-        <caption>Held-out eval on {data.n_test ?? "?"} requests. Judge: {data.judge ?? "n/a"}.</caption>
-        <thead><tr><th scope="col">Metric</th><th scope="col">Base</th><th scope="col">Fine-tuned</th></tr></thead>
-        <tbody>{rows.map(r => <tr key={r[0]}><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody>
-      </table>
-      {p && <p className="meta">Side by side preference: fine-tune {p.finetuned_wins} of {p.n}, base {p.base_wins} of {p.n}.</p>}
-    </div>
+    <Reveal className="eval card" style={{ ["--c" as string]: f5.color, ["--cd" as string]: f5.dark }} delay={0}>
+      <div ref={ref} className={`eval-in ${seen ? "seen" : ""}`}>
+        <header className="eval-head">
+          <div><span className="card-step">Scores</span><h3>Held-out eval on {data.n_test ?? "?"} requests</h3><p className="muted sm">Judge: {data.judge ?? "n/a"}</p></div>
+          <div className="legend"><span><i className="sw base" />Base</span><span><i className="sw ft" />Fine-tuned</span></div>
+        </header>
+        <div className="eval-grid">
+          <div className="bars">
+            {rows.map(([label, bv, fv], i) => (
+              <div className="bar-row" key={label} style={{ ["--i" as string]: i }}>
+                <span className="bar-label">{label}</span>
+                <div className="bar-pair">
+                  <div className="bar base"><span style={{ ["--w" as string]: `${(bv ?? 0) * 100}%` }} /><em>{pct(bv)}</em></div>
+                  <div className="bar ft"><span style={{ ["--w" as string]: `${(fv ?? 0) * 100}%` }} /><em>{pct(fv)}</em></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="side">
+            {p && <div className="win"><span className="win-num">{p.finetuned_wins}<small>/{p.n}</small></span><span className="stat-label">Head-to-head wins for the fine-tune</span>
+              <div className="split"><span style={{ ["--w" as string]: `${(p.finetuned_wins / p.n) * 100}%` }} /></div></div>}
+            {tiles.map(([l, bv, fv]) => <div className="tile" key={l}><span className="stat-label">{l}</span><div><span className="muted">{bv}</span><span className="to">→</span><strong>{fv}</strong></div></div>)}
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
