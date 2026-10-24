@@ -1,5 +1,6 @@
 import { generateReply, modelConfig, ModelError } from "@/lib/model";
 import { LANGUAGES, SCENARIO_IDS, STYLES, type Context, type Language, type Scenario, type Style } from "@/lib/prompt";
+import { checkTerms, correctionLine, parseTerms, termsLine } from "@/lib/terms";
 import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -19,7 +20,8 @@ export async function POST(req: Request) {
   const scenario = typeof body.scenario === "string" && body.scenario ? body.scenario as Scenario : undefined;
   const raw = (body.context && typeof body.context === "object" ? body.context : {}) as Record<string, unknown>;
   const field = (k: string, max: number) => typeof raw[k] === "string" ? (raw[k] as string).trim().slice(0, max) || undefined : undefined;
-  const ctx: Context = { rate: field("rate", 80), deadline: field("deadline", 80), notes: field("notes", 300) };
+  const terms = parseTerms(body.terms);
+  const ctx: Context = { rate: field("rate", 80), deadline: field("deadline", 80), notes: field("notes", 300), terms: terms && termsLine(terms) };
   if (request.length < 5) return json({ error: "Paste a request (at least 5 characters)." }, 400);
   if (request.length > 2000) return json({ error: "That request is too long. Keep it under 2,000 characters." }, 400);
   if (!STYLES.includes(style)) return json({ error: "Pick a style: soft, firm or maybe-later." }, 400);
@@ -41,8 +43,18 @@ export async function POST(req: Request) {
     }
     const cfg = modelConfig();
     const variant = cfg.finetunePath ? "finetune" : "base";
-    const out = await generateReply(variant, request, style, language, scenario, ctx);
-    return json({ ...out, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });
+    let out = await generateReply(variant, request, style, language, scenario, ctx);
+    let guard: { issues: string[]; action: "regenerated" | "corrected" } | undefined;
+    if (terms) {
+      const issues = checkTerms(out.text, terms);
+      if (issues.length) {
+        // One retry with the problem spelled out; if it still breaks the floor, append the real terms.
+        const retry = await generateReply(variant, request, style, language, scenario, { ...ctx, extra: `Your last draft broke my terms (${issues.join("; ")}). Do not go below my minimum or above my discount limit.` }).catch(() => null);
+        if (retry && !checkTerms(retry.text, terms).length) { out = retry; guard = { issues, action: "regenerated" }; }
+        else { out = { ...out, text: `${out.text}\n\n${correctionLine(terms)}`.trim() }; guard = { issues, action: "corrected" }; }
+      }
+    }
+    return json({ ...out, terms: Boolean(terms), guard, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });
   } catch (e) {
     const status = e instanceof ModelError ? e.status : 500;
     return json({ error: e instanceof ModelError ? e.message : "Something went wrong." }, status);
