@@ -346,9 +346,14 @@ const pct = (x: unknown) => typeof x === "number" ? `${Math.round(x * 100)}%` : 
 const num = (x: unknown, d = 1) => typeof x === "number" ? x.toFixed(d) : "n/a";
 
 function EvalPanel({ data, msg }: { data: any; msg: string }) {
+  const f5 = FEATURES[4];
+  if (data) return <EvalScores data={data} />;
+  return <div className="eval card" style={{ ["--c" as string]: f5.color }}><Empty icon={<IconProof width="34" height="34" />} title="Scores" body={msg} /></div>;
+}
+
+function EvalScores({ data }: { data: any }) {
   const [ref, seen] = useInView<HTMLDivElement>();
   const f5 = FEATURES[4];
-  if (!data) return <div className="eval card" style={{ ["--c" as string]: f5.color }}><Empty icon={<IconProof width="34" height="34" />} title="Scores" body={msg} /></div>;
   const b = data.base || {}, f = data.finetuned || {};
   const rows: [string, number, number][] = [["Passes every rule", b.pass_rate, f.pass_rate], ...Object.keys(f.per_rule || {}).map(k => [RULE_LABELS[k] ?? k.replace(/_/g, " "), b.per_rule?.[k], f.per_rule?.[k]] as [string, number, number])];
   if (typeof f.pidgin_correct_rate === "number") rows.push(["Pidgin judged natural", b.pidgin_correct_rate, f.pidgin_correct_rate]);
