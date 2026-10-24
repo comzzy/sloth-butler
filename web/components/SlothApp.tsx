@@ -527,7 +527,7 @@ export function SlothApp() {
         <Reveal className="stage-head sub" delay={0}>
           <span className="eyebrow"><span className="eyebrow-dot" />Why a trained model</span>
           <h2>Before and after training</h2>
-          <p>Sloth Butler runs on Qwen3-8B with a small adapter trained for this one job. Try the same message on both.</p>
+          <p>Sloth-Butler runs on Qwen3-8B with a small adapter trained for this one job. Try the same message on both.</p>
         </Reveal>
 
         <Card n={5} className="proof-card">
@@ -541,7 +541,7 @@ export function SlothApp() {
               const s = compare?.[k];
               return (
                 <div key={k} className={`compare-col ${k}`}>
-                  <div className="compare-head"><span className="pill">{k === "base" ? "Before training (plain Qwen3-8B)" : "After training (Sloth Butler)"}</span>{s && !("error" in s) && <span className="muted sm">{s.text.split(/\s+/).length} words · {(s.latencyMs / 1000).toFixed(1)}s</span>}</div>
+                  <div className="compare-head"><span className="pill">{k === "base" ? "Before training (plain Qwen3-8B)" : "After training (Sloth-Butler)"}</span>{s && !("error" in s) && <span className="muted sm">{s.text.split(/\s+/).length} words · {(s.latencyMs / 1000).toFixed(1)}s</span>}</div>
                   {comparing ? <div className="shimmer tall" aria-hidden="true"><span /><span /><span /></div>
                     : s ? ("error" in s ? <p className="error">{s.error}</p> : <RevealText text={s.text} className="small" />)
                     : <p className="ghost-line">{k === "base" ? "Untrained reply goes here" : "Trained reply goes here"}</p>}

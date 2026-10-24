@@ -1,5 +1,5 @@
-/** Sloth Butler mark: sloth face with eye mask and a bow tie, on a yellow disc. */
-export function Logo({ size = 40, title = "Sloth Butler" }: { size?: number; title?: string }) {
+/** Sloth-Butler mark: sloth face with eye mask and a bow tie, on a yellow disc. */
+export function Logo({ size = 40, title = "Sloth-Butler" }: { size?: number; title?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={title}>
       <circle cx="32" cy="32" r="32" fill="#F5DF6E" />

@@ -1,4 +1,4 @@
-# Sloth Butler web app
+# Sloth-Butler web app
 
 Next.js (App Router, TypeScript). Save your terms once (rate, minimum, discount limit, payment terms, late fee), pick a situation, paste the message, and get a polite, firm reply that uses your real numbers. Late invoices and quiet clients get a three-step follow-up plan on a local board. Copy it, play it, or download it as an mp3. Live at https://sloth-butler.vercel.app.
 

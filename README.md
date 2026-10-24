@@ -1,12 +1,12 @@
-# Sloth Butler
+# Sloth-Butler
 
-**Sloth Butler handles the messages you dread replying to.**
+**Sloth-Butler handles the messages you dread replying to.**
 
 Live: **https://sloth-butler.vercel.app** · Guide and FAQ: https://sloth-butler.vercel.app/guide
 
 If you sell your time or your products, you know these messages. A client asks you to "just add one more page" for free. A customer wants 30% off. An invoice is three weeks late and the client asks for another month. Someone wants the order today and to pay you "at the end of the month". A call request lands with ten minutes' notice.
 
-None of these are hard decisions. The hard part is the wording: staying polite without giving ground, not over-apologising, and not opening a long back-and-forth. So the reply sits in your inbox for days. Sloth Butler writes it for you in a few seconds: a polite, firm answer with exactly one counter-offer, such as a paid option, a later date or a partial yes.
+None of these are hard decisions. The hard part is the wording: staying polite without giving ground, not over-apologising, and not opening a long back-and-forth. So the reply sits in your inbox for days. Sloth-Butler writes it for you in a few seconds: a polite, firm answer with exactly one counter-offer, such as a paid option, a later date or a partial yes.
 
 It is for the messages that cost you time and money: unpaid extra work, discount pressure, late invoices and clients who go quiet, in whatever currency you bill.
 
@@ -18,7 +18,7 @@ It is for the messages that cost you time and money: unpaid extra work, discount
 - **Tone and language.** `soft`, `firm` or `maybe-later`. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin.
 - **Ready to send.** Copy the reply, play it in the ElevenLabs voice Alice, or download it as an mp3 voice note for chat apps.
 - **A log of what you protected.** When you send a reply, log the hours and the money it protected. Pick your currency (USD by default; EUR, GBP, CAD, AUD, INR, JPY and more). Totals count up on the page. The log is stored in your browser's local storage only.
-- **Proof it's trained.** Lower on the page you can run the same message through plain Qwen3-8B and through Sloth Butler side by side, and read the test results from 60 held-out requests.
+- **Proof it's trained.** Lower on the page you can run the same message through plain Qwen3-8B and through Sloth-Butler side by side, and read the test results from 60 held-out requests.
 
 ## How to use it
 

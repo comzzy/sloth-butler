@@ -1,4 +1,4 @@
-// Custom line icons for the five Sloth Butler features. 48x48 grid, 2px white strokes.
+// Custom line icons for the five Sloth-Butler features. 48x48 grid, 2px white strokes.
 import type { SVGProps } from "react";
 type P = SVGProps<SVGSVGElement>;
 const base = { viewBox: "0 0 48 48", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };

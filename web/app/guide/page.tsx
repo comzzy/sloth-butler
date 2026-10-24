@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Faq, Reveal, Sample } from "@/components/GuideBits";
 
-export const metadata: Metadata = { title: "Guide and FAQ · Sloth Butler", description: "How to use Sloth Butler for scope creep, discounts, late invoices and last-minute asks: steps, FAQ and roadmap." };
+export const metadata: Metadata = { title: "Guide and FAQ · Sloth-Butler", description: "How to use Sloth-Butler for scope creep, discounts, late invoices and last-minute asks: steps, FAQ and roadmap." };
 
 const C = ["#F5DF6E", "#AECF5A", "#5FA383", "#8E84E3", "#EE8C6E"];
 
@@ -18,7 +18,7 @@ const STEPS: [string, string][] = [
   ["Copy, play or download", "\u201cCopy reply\u201d puts it on your clipboard. \u201cPlay voice\u201d reads it in the ElevenLabs voice Alice. \u201cDownload mp3\u201d saves it as a voice note you can send on WhatsApp, Telegram or anywhere else."],
   ["Mark sent, mark paid", "Copy a follow-up or play it as a voice note, send it yourself, then press \u201cMark sent\u201d. When the invoice is paid, \u201cMark paid\u201d closes the plan and adds the amount to your log as money recovered."],
   ["Log what it protected", "If you send a reply, enter the hours and money it saved you and press \u201cSave to log\u201d. Totals count up on the page."],
-  ["Check the proof", "Lower on the page, compare the same message on plain Qwen3-8B and on Sloth Butler, and read the test scores."],
+  ["Check the proof", "Lower on the page, compare the same message on plain Qwen3-8B and on Sloth-Butler, and read the test scores."],
 ];
 
 const SAMPLES: [string, string][] = [
@@ -55,7 +55,7 @@ const FAQ: [string, React.ReactNode][] = [
 
 const ROADMAP: [string, string][] = [
   ["Training on business messages", "A second training round on real-style client, customer and invoice messages, so the situation picker isn't only steering the prompt."],
-  ["Share to Sloth Butler", "Send a message straight from email or a chat app instead of copy-pasting."],
+  ["Share to Sloth-Butler", "Send a message straight from email or a chat app instead of copy-pasting."],
   ["Reminders on your phone", "A notification when a follow-up is due, instead of checking the board."],
   ["Export your log", "Download your protected hours and money as CSV for your own records."],
   ["Shared terms for a team", "One set of rates and floors that everyone on a small team replies from."],
@@ -80,7 +80,7 @@ export default function Guide() {
         <div className="stage-inner g-wrap">
           <Reveal className="stage-head">
             <span className="eyebrow"><span className="eyebrow-dot" />Guide</span>
-            <h1 className="g-title">How Sloth Butler works</h1>
+            <h1 className="g-title">How Sloth-Butler works</h1>
             <p>How to use it, what&apos;s under the hood, common questions and what&apos;s next.</p>
             <ul className="g-toc">
               {[["what", "What it is"], ["use", "How to use it"], ["how", "How it works"], ["faq", "FAQ"], ["roadmap", "Roadmap"]].map(([h, t], i) => (
@@ -92,7 +92,7 @@ export default function Guide() {
           <section className="g-sec" aria-labelledby="what">
             <Head id="what" n={1} title="What it is" />
             <Reveal className="card g-card" delay={100} style={{ ["--c" as string]: C[0] }}>
-              <p className="g-lede">Sloth Butler handles the messages you dread replying to: a client asking for free extra work, a customer pushing for a discount, an invoice that is weeks late, someone who wants to pay later, or a last-minute call. You paste the message, and it writes a polite, firm reply with one counter-offer, such as a paid option, a later date or a partial yes. You can copy it, listen to it or save it as a voice note, then log the hours and money it protected. It remembers your rate and your floor, and plans follow-ups for invoices that are late.</p>
+              <p className="g-lede">Sloth-Butler handles the messages you dread replying to: a client asking for free extra work, a customer pushing for a discount, an invoice that is weeks late, someone who wants to pay later, or a last-minute call. You paste the message, and it writes a polite, firm reply with one counter-offer, such as a paid option, a later date or a partial yes. You can copy it, listen to it or save it as a voice note, then log the hours and money it protected. It remembers your rate and your floor, and plans follow-ups for invoices that are late.</p>
               <Link href="/#negotiate" className="btn-secondary g-cta">Write a reply</Link>
             </Reveal>
           </section>
