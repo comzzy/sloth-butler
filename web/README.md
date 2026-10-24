@@ -1,6 +1,6 @@
 # Sloth Butler web app
 
-Next.js (App Router, TypeScript). Paste a request, pick a style and language, get a polite no with one counter-offer, and hear it read aloud.
+Next.js (App Router, TypeScript). Pick a situation (scope creep, discount, late invoice, pay later, last-minute favour, other), paste the message, and get a polite, firm reply with one counter-offer. Copy it, play it, or download it as an mp3. Live at https://sloth-butler.vercel.app.
 
 ## Run
 
@@ -12,11 +12,11 @@ npm run build && npm start   # http://localhost:3000
 
 ## Server routes
 
-- `POST /api/decline` `{request, style, language, compare?}` samples the fine-tune (or both models with `compare: true`) through Tinker's OpenAI-compatible `/completions` endpoint. The prompt is rendered exactly like the training renderer (`qwen3_disable_thinking`) with the system prompt from `scripts/common.py`.
+- `POST /api/decline` `{request, style, language, scenario?, context?: {rate, deadline, notes}, compare?}` samples the fine-tune (or both models with `compare: true`) through Tinker's OpenAI-compatible `/completions` endpoint. The prompt is rendered exactly like the training renderer (`qwen3_disable_thinking`) with the system prompt from `scripts/common.py`; the situation and context are appended to the user message.
 - `POST /api/voice` `{text}` returns MP3 from ElevenLabs, cached in memory and in `.cache/voice/`.
 - `GET /api/eval` serves `../eval/results.json` (or `EVAL_RESULTS_PATH`).
 
-The chime in `public/audio/declined-chime.mp3` was generated once with the ElevenLabs sound effects API.
+The protected-hours log is client-side only (`localStorage`, key `sloth-butler-protected-v2`).
 
 ## Environment (server only)
 

@@ -1,24 +1,95 @@
 # Sloth Butler
 
-Sloth Butler writes the reply you keep putting off. You paste a message you dread (a meeting invite, a favour, a boss's "quick ask", a group-chat request, a family request, a client adding scope) and it gives back a short, kind, firm "not now" with one concrete counter-offer. You pick a style (`soft`, `firm`, `maybe-later`) and a language (English or Nigerian Pidgin).
+**Sloth Butler handles the messages you dread replying to.**
 
-The model is Qwen3-8B with a small LoRA adapter trained on Tinker. This repository holds phase 1: the dataset, the checker, the training script, and an evaluation against the base model. The web app lives in `web/` and includes a voice reading (ElevenLabs).
+Live: **https://sloth-butler.vercel.app** · Guide and FAQ: https://sloth-butler.vercel.app/guide
 
-Try it here: https://sloth-butler.vercel.app
+If you sell your time or your products, you know these messages. A client asks you to "just add one more page" for free. A customer wants 30% off. An invoice is three weeks late and the client asks for another month. Someone wants the order today and to pay you "at the end of the month". A call request lands with ten minutes' notice.
 
-## The problem
+None of these are hard decisions. The hard part is the wording: staying polite without giving ground, not over-apologising, and not opening a long back-and-forth. So the reply sits in your inbox for days. Sloth Butler writes it for you in a few seconds: a polite, firm answer with exactly one counter-offer, such as a paid option, a later date or a partial yes.
 
-Saying no is a small task that people delay for days. The hard part is not the decision, it is the wording: how to decline without lying, without over-apologising, and without opening a long negotiation. General chat models can do this, but in my testing the base model often hedged ("maybe I can..."), offered two or three alternatives, made up reasons, or produced broken Pidgin. I wanted something that does one narrow job well and cheaply.
+It is built for freelancers, consultants, small business owners and online sellers, wherever they work and in whatever currency they bill.
+
+## What it does
+
+- **Situation picker.** Choose what kind of message it is: free extra work (scope creep), a discount request, a late or unpaid invoice, a pay-later or credit request, a last-minute favour or meeting, or something else. Each situation tells the model what a sensible counter-offer looks like.
+- **Your context.** Optionally add your rate or price and any deadline. The reply can use them, for example quoting a paid add-on at your hourly rate or naming the date you expect payment.
+- **Tone and language.** `soft`, `firm` or `maybe-later`. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin.
+- **Ready to send.** Copy the reply, play it in the ElevenLabs voice Alice, or download it as an mp3 voice note for chat apps.
+- **A log of what you protected.** When you send a reply, log the hours and the money it protected. Pick your currency (USD by default; EUR, GBP, CAD, AUD, INR, JPY and more). Totals count up on the page. The log is stored in your browser's local storage only.
+- **Proof it's trained.** Lower on the page you can run the same message through plain Qwen3-8B and through Sloth Butler side by side, and read the test results from 60 held-out requests.
+
+## How to use it
+
+1. Open https://sloth-butler.vercel.app and press **Write a reply**.
+2. Pick the situation.
+3. Paste the message you received into **Their message**.
+4. Add your rate or a deadline if it matters.
+5. Pick a tone and a language, then press **Write my reply**.
+6. Read it. Copy it, play it, or download the mp3. Press **Write another** for a different version.
+7. If you send it, enter the hours and money it protected and press **Save to log**.
+
+Always read the reply before sending. The model doesn't know your contract or your calendar, so make sure the counter-offer is one you'll honour.
+
+## Example
+
+Situation: free extra work. Tone: firm. Rate: $60/hour.
+
+> Since you're already doing the logo, could you also put together a few social media banners? Should be quick for you.
+
+A typical reply:
+
+> I can't add the banners to the logo project. I can quote them separately at $60 an hour if you'd like them this month.
 
 ## How it works
 
-1. The user's message, a style and a language go into a fixed system prompt (`scripts/common.py`).
-2. The fine-tuned Qwen3-8B adapter generates the reply.
-3. The same deterministic checker used to filter training data (`scripts/checks.py`) can be run on the output.
+1. The browser sends the message, the situation, your optional rate and deadline, and the tone and language to `POST /api/decline`.
+2. The server builds the same prompt format the model was trained on (system prompt from `scripts/common.py`, `Style` and `Language` lines), adds a short description of the situation and your context, and renders it with the `qwen3_disable_thinking` template.
+3. It samples from the fine-tuned Qwen3-8B LoRA adapter on Tinker through the OpenAI-compatible `/completions` endpoint. The checkpoint path comes from the `MODEL_FINETUNE_PATH` environment variable.
+4. If you press Play or Download, `POST /api/voice` turns the reply into speech with ElevenLabs (voice Alice) and caches the mp3.
+
+There is no database and no account. Message text is not logged.
+
+### API
+
+```bash
+curl -s https://sloth-butler.vercel.app/api/decline \
+  -H 'content-type: application/json' \
+  -d '{"request":"Can you do 30% off? Budget is tight.","style":"firm","language":"English",
+       "scenario":"discount","context":{"rate":"$900 flat","deadline":"start next Monday"}}'
+```
+
+| Field | Values |
+|---|---|
+| `request` | the message you received, 5 to 2,000 characters |
+| `style` | `soft`, `firm`, `maybe-later` |
+| `language` | `English`, `Spanish`, `French`, `Portuguese`, `German`, `Nigerian Pidgin` |
+| `scenario` (optional) | `scope-creep`, `discount`, `late-invoice`, `credit`, `favour`, `other` |
+| `context` (optional) | `{ "rate": string, "deadline": string, "notes": string }` |
+| `compare` (optional) | `true` returns `{ base, finetune }` side by side |
+
+`POST /api/voice` with `{"text": "..."}` returns `audio/mpeg`. `GET /api/eval` returns the evaluation summary.
+
+### Running it yourself
+
+```bash
+cd web
+cp .env.example .env.local   # TINKER_API_KEY, MODEL_FINETUNE_PATH, ELEVENLABS_API_KEY
+npm install
+npm run dev                  # http://localhost:3000
+```
+
+The web app is deployed on Vercel from the `master` branch. See `web/README.md` for the environment variables.
+
+## The model
+
+The model is Qwen3-8B with a small LoRA adapter trained on Tinker for one narrow job: turning down a request clearly, with one concrete alternative. General chat models can do this, but in testing the base model often hedged ("maybe I can..."), offered two or three alternatives, or made up reasons. A small trained model does the job more consistently and cheaply.
+
+The rest of this README covers how the adapter was trained and tested.
 
 Reply rules the model is trained to follow:
 
-- Decline clearly in the first sentence.
+- Give the answer clearly in the first sentence.
 - Exactly one concrete counter-offer.
 - 80 words or fewer.
 - At most one apology.
@@ -28,16 +99,16 @@ Reply rules the model is trained to follow:
 
 ## Why open weights
 
-- I can fine-tune it. The adapter is about 3 minutes of training and moves rule-following from 27% to 85% on held-out data.
-- Nigerian Pidgin. The base model's Pidgin was judged correct 4% of the time; after fine-tuning, 88%. Closed APIs do not let me fix that directly.
+- It can be fine-tuned. The adapter is about 3 minutes of training and moves rule-following from 27% to 85% on held-out data.
+- Languages the base model handles badly can be fixed directly. Pidgin went from 4% judged correct to 88%.
 - Cheap. An 8B model with short outputs costs well under a hundredth of a cent per reply.
-- Swappable. The training script takes a base model name. Moving to another open model on Tinker (Qwen3.5-4B, Qwen3.5-9B, and others) is a one-line change, and the adapter weights can be downloaded and run elsewhere.
+- Swappable. The training script takes a base model name, and the adapter weights can be downloaded and run elsewhere.
 
 ## Dataset
 
 All generation scripts are in `scripts/` and all data is in `data/`.
 
-- `scripts/gen_requests.py` asks `openai/gpt-oss-120b` (via Groq) for realistic dreaded messages across 12 categories (meeting invites, favours, boss asks, group chats, family, client scope creep, shift cover, landlord or neighbour, church or community volunteering, party invites, money requests, "pick your brain" asks) and 14 settings, many of them Nigerian (Lagos startup, Abuja civil service, Enugu shop, family WhatsApp group). After de-duplication: **370 requests**. Each was randomly assigned a style and a language (target 25% Pidgin; actual 115/370 = 31%).
+- `scripts/gen_requests.py` asks `openai/gpt-oss-120b` (via Groq) for realistic dreaded messages across 12 categories (meeting invites, favours, boss asks, group chats, family, client scope creep, shift cover, landlord or neighbour, church or community volunteering, party invites, money requests, "pick your brain" asks) and 14 settings (startups, offices, shops, family and community group chats). After de-duplication: **370 requests**. Each was randomly assigned a style and a language (target 25% Pidgin; actual 115/370 = 31%).
 - `scripts/gen_replies.py` shuffles with seed 1234 and holds out **60 requests as the test set** (`data/test.jsonl`). These are never shown to the teacher or the trainer.
 - For the remaining 310, the teacher (`openai/gpt-oss-120b`, sampled on Tinker because Groq's free tier allows 8k tokens per minute) writes a reply. Each reply is run through `scripts/checks.py`; if it fails, the teacher gets up to 3 attempts. **288 passed and form `data/train.jsonl`**; the 22 that never passed are in `data/rejected.jsonl` with the rules they failed.
 
@@ -86,7 +157,7 @@ bot = TinkerChat("Qwen/Qwen3-8B", model_path="tinker://edb0b1c8-9aea-5b41-8fc5-a
                  renderer_name="qwen3_disable_thinking")
 reply, meta = bot.chat([
     {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": user_msg("Can you cover my Saturday shift?", "soft", "Nigerian Pidgin")},
+    {"role": "user", "content": user_msg("Could you add two extra pages to the site at no charge?", "firm", "English")},
 ])
 print(reply)
 ```
@@ -135,54 +206,14 @@ Cost is estimated from token counts at Tinker list prices for Qwen3-8B (prefill 
 
 ## Examples
 
-### colleague asking you to cover their shift/task (soft, Nigerian Pidgin)
-
-Request:
-
-> Abeg, I need you to take over my shift at the clinic tomorrow morning 8‑12. My mother is sick and I must go see her. I’ll pay you ₦5,000 for the cover if you can help.
-
-Base (checker fail: no_false_excuse, language_match):
-
-> Abeg, I can’t take over your shift tomorrow morning. My mother is sick, and I need to go see her. But I can help you later this week, like on Friday, if you still need someone. I’m really sorry, but I can’t do it now.
-
-Fine-tuned (checker pass):
-
-> I sorry, I no fit take over your shift tomorrow morning. I fit help you on the afternoon shift on Friday, if that still works for you.
-
-### group-chat ask (firm, Nigerian Pidgin)
-
-Request:
-
-> Good afternoon, please remember that the rent for the 3B flat (N150,000) is due on 1st November. If you can’t pay on time, we need to discuss a payment plan.
-
-Base (checker fail: language_match, style_match):
-
-> E no go pay rent now, I no go pay. I go pay next week. No sorry.
-
-Fine-tuned (checker pass):
-
-> I no fit pay di rent for di 3B flat on 1st November. I fit send di half di amount on 15th November.
-
-### event/party invite (firm, English)
-
-Request:
-
-> Brother, we are having a special prayer night on 15th Oct, 9pm at St. Michael's Church, Lagos. Please be there, bring your family, and help with the refreshments budget of ₦5,000.
-
-Base (checker fail: style_match):
-
-> I can't attend the prayer night. I'll be unavailable on the 15th. You can reach me on the 20th to discuss the refreshments budget. I'm sorry, but I can't help with the arrangement this time.
-
-Fine-tuned (checker pass):
-
-> I can't attend the prayer night on Oct 15th. I can contribute ₦2,000 to the refreshments budget.
-
+Every test reply, before and after training, with checker and judge output, is in `eval/outputs.jsonl`; a readable selection is in `eval/results.md`.
 
 ## What still fails
 
 
 - English quality is not better by judge preference. On English items the judge preferred the base model 20 to 16. The fine-tune is shorter and more uniform; the judge often rewarded the base model's extra warmth and context. Most of the pairwise win comes from Pidgin (22 to 2).
 - Replies are formulaic: almost always "I can't X. I can Y." This passes the checker but reads flat, especially for the `soft` style.
+- The training data covered general requests (meetings, favours, client asks, money requests). The business situations in the web app steer the model through the prompt, not through new training, so some replies still read like a personal no rather than a business reply.
 - Some counter-offers do not make sense: offering to bring dessert to a potluck three days after it happened, offering a gift "on the day of the party" after declining the party, offering a partial payment on a debt the user owes.
 - The fine-tune sometimes adds "Sorry for any inconvenience", a corporate phrase not on the tic list.
 - `maybe-later` style fails most often (style_match 85%): the model gives a date for the counter-offer but does not frame it as revisiting the request.
@@ -233,19 +264,19 @@ eval/
   results.json      summary metrics
   results.md        tables, examples, known failures
   outputs.jsonl     every test reply with checker and judge output
-web/                web app (in progress, not part of phase 1)
+web/                Next.js web app, deployed to Vercel
 ```
 
 ## Web app
 
-A web app with an ElevenLabs butler voice is being built in `web/`. It is not part of this phase and nothing in the numbers above depends on it.
+The app in `web/` is a Next.js (App Router, TypeScript) site with three server routes (`/api/decline`, `/api/voice`, `/api/eval`). The evaluation numbers above were measured with the training prompt only and do not depend on the web app.
 
 ## Credits
 
 - [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B) by the Qwen team, Apache 2.0. The base model.
 - [Tinker](https://thinkingmachines.ai/tinker/) by Thinking Machines Lab for LoRA training and sampling, and [tinker-cookbook](https://github.com/thinking-machines-lab/tinker-cookbook) for renderers, `conversation_to_datum`, and the training loop pattern in `scripts/train.py`.
 - [gpt-oss-120b](https://huggingface.co/openai/gpt-oss-120b), open-weight, used as teacher and judge, served by [Groq](https://groq.com) and Tinker.
-- [ElevenLabs](https://elevenlabs.io) for the planned voice output.
+- [ElevenLabs](https://elevenlabs.io) for the voice (Alice).
 
 ## Licence
 

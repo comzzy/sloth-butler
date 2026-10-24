@@ -3,54 +3,53 @@ import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Faq, Reveal, Sample } from "@/components/GuideBits";
 
-export const metadata: Metadata = { title: "Guide and FAQ · Sloth Butler", description: "How to use Sloth Butler, how it works, common questions and what's planned." };
+export const metadata: Metadata = { title: "Guide and FAQ · Sloth Butler", description: "How to use Sloth Butler for scope creep, discounts, late invoices and last-minute asks: steps, FAQ and roadmap." };
 
 const C = ["#F5DF6E", "#AECF5A", "#5FA383", "#8E84E3", "#EE8C6E"];
 
 const STEPS: [string, string][] = [
-  ["Paste the request", "Put the message you want to turn down in \u201cThe request\u201d box, or tap one of the examples under it."],
-  ["Pick tone and language", "Soft, firm or maybe-later. English or Nigerian Pidgin."],
-  ["Press \u201cWrite my no\u201d", "You get one short reply: a clear no and one counter-offer. Usually under 30 words."],
-  ["Play it", "Press Play to hear it in the ElevenLabs voice Alice. Press again to stop."],
-  ["Copy it or try again", "\u201cCopy reply\u201d puts it on your clipboard. \u201cTry again\u201d writes a new one with the same settings."],
-  ["Check time saved", "Each reply adds to the counter. Use \u2212 and + to set how many minutes one request would have cost you. Reset clears it."],
-  ["Compare with the untrained model", "Runs your request through plain Qwen3-8B and through Sloth Butler, side by side."],
-  ["Read the test results", "Scores from 60 requests the model never saw while training, before and after."],
+  ["Pick the situation", "Free extra work, a discount request, a late or unpaid invoice, a pay-later request, a last-minute favour, or Something else. This tells the model what kind of counter-offer makes sense."],
+  ["Paste their message", "Copy the email, DM or text you received into \u201cTheir message\u201d. \u201cUse an example\u201d fills in a sample if you just want to see how it works."],
+  ["Add context if you have it", "Your rate or price and any deadline are optional. When you add them, the reply can quote them, for example a paid add-on at your hourly rate."],
+  ["Choose a tone and language", "Soft is warm, firm is short and direct, maybe-later names a time to revisit. Languages: English, Spanish, French, Portuguese, German and Nigerian Pidgin."],
+  ["Press \u201cWrite my reply\u201d", "You get one reply: a clear answer in the first sentence and a single counter-offer. Usually 20 to 50 words."],
+  ["Copy, play or download", "\u201cCopy reply\u201d puts it on your clipboard. \u201cPlay voice\u201d reads it in the ElevenLabs voice Alice. \u201cDownload mp3\u201d saves it as a voice note you can send on WhatsApp, Telegram or anywhere else."],
+  ["Log what it protected", "If you send it, enter the hours and money it saved you and press \u201cSave to log\u201d. Pick your currency in the log card. Totals count up on the page."],
+  ["Check the proof", "Lower on the page, compare the same message on plain Qwen3-8B and on Sloth Butler, and read the test scores."],
 ];
 
 const SAMPLES: [string, string][] = [
-  ["English", "Hey, can you join a quick call at 9pm tonight to go over the slides? Won't take long."],
-  ["Pidgin", "Bro abeg, help me carry my load go my new house this Saturday morning."],
-  ["English", "Can you lend me 50k till month end? I'll pay back, I promise."],
-  ["English", "We need one more person to run the stand at the fair on Sunday. You in?"],
-  ["Pidgin", "Abeg you fit cover my shift for shop tomorrow? Na only small time."],
+  ["Free extra work", "Since you're already doing the logo, could you also put together a few social media banners? Should be quick for you."],
+  ["Discount", "Love your work but $1,200 is more than we planned. Could you do it for $700?"],
+  ["Late invoice", "Hi, sorry for the delay on invoice #104. Things are slow this month, can we settle it in six weeks?"],
+  ["Pay later", "Can you ship the two lamps today? I'll transfer the money once my client pays me."],
+  ["Last-minute", "Any chance you could jump on a call in 20 minutes? Just want to run some ideas past you."],
 ];
 
 const FAQ: [string, React.ReactNode][] = [
-  ["Is my text stored?", <>No. The app doesn&apos;t have a database. Your request goes to the model on Tinker to write the reply, and the reply goes to ElevenLabs only if you press Play. The server logs errors from those services, not your text. The time-saved counter lives in your browser&apos;s local storage and never leaves your device.</>],
-  ["Why Pidgin?", <>Lots of people text in Nigerian Pidgin. The untrained model was bad at it: a judge model rated its Pidgin correct 4% of the time. After training it was 88%. That was the biggest gain.</>],
-  ["Why only one counter-offer?", <>Two or three options start a negotiation. One offer is enough to stay friendly and keeps the no a no.</>],
-  ["What does the time-saved number mean?", <>Number of replies written, times the minutes you set per request (45 by default). It&apos;s a rough guess at the time you&apos;d have spent dodging or wording the reply yourself.</>],
+  ["Who is this for?", <>Anyone who sells their time or products and gets awkward messages about money and scope: freelancers, consultants, agencies, shop owners and online sellers.</>],
+  ["Is my text stored?", <>No. There is no database. Your message and context go to the model on Tinker to write the reply, and the reply goes to ElevenLabs only if you press Play or Download. The server logs service errors, not your text. Your log of protected hours and money lives in your browser&apos;s local storage.</>],
+  ["Why only one counter-offer?", <>Two or three options turn the reply into a negotiation. One clear option, like a paid add-on or a fixed payment date, keeps the conversation short and keeps your terms in place.</>],
+  ["How is &ldquo;money protected&rdquo; counted?", <>You enter it. For a discount request it might be the discount you didn&apos;t give; for scope creep, the value of the work you didn&apos;t do for free; for a late invoice, the amount you asked for. Hours work the same way. The app adds up what you log, in the currency you choose.</>],
+  ["Which currencies and languages?", <>The log supports USD (default), EUR, GBP, CAD, AUD, INR, JPY, BRL, ZAR, MXN, CHF and SGD. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin. English and Pidgin were part of training; the other languages rely on the base model&apos;s own skill.</>],
+  ["Can it send the message for me?", <>No. It writes the reply. You read it, copy it or download the voice note, and send it yourself.</>],
   ["Is it free? Is it open source?", <>Free to use. The code, training data and eval scripts are MIT licensed: <a href="https://github.com/comzzy/sloth-butler">github.com/comzzy/sloth-butler</a>.</>],
-  ["Can it send the message for me?", <>No. It writes the reply. You copy it and send it yourself, after reading it.</>],
   ["What are the limits?", <ul>
-    <li>Replies can be formulaic, usually &ldquo;I can&apos;t X. I can Y.&rdquo;</li>
-    <li>Some counter-offers don&apos;t make sense, like offering help with something that already happened.</li>
-    <li>In English, the judge model preferred the untrained replies 20 to 16. The training mostly paid off in Pidgin (22 to 2).</li>
-    <li>Pidgin quality was rated by a model, not by native speakers.</li>
-    <li>It can&apos;t know your real plans. Check the counter-offer is something you&apos;ll actually do.</li>
+    <li>Replies can be formulaic, often &ldquo;I can&apos;t do X. I can do Y.&rdquo;</li>
+    <li>It doesn&apos;t know your contract or your real calendar. Check the counter-offer is something you&apos;ll actually honour.</li>
+    <li>The adapter was trained on general requests; the situation picker steers it with extra instructions rather than new training.</li>
+    <li>In the tests, the training paid off most on rule-following and Pidgin; for plain English the judge was close to a tie.</li>
   </ul>],
 ];
 
 const ROADMAP: [string, string][] = [
-  ["Share to Sloth Butler", "Send a message straight from WhatsApp or email instead of copy-pasting."],
-  ["Yoruba and Hausa", "Same idea, more languages. Needs new training data."],
-  ["Native-speaker review", "Have Pidgin speakers rate replies, instead of only a model."],
-  ["More tones", "For example \u201cwork-formal\u201d and \u201cfamily\u201d."],
-  ["Browser extension", "Write the no next to the message in Gmail or web chat."],
-  ["Better counter-offers", "A second training round aimed at offers that make sense for the request."],
+  ["Training on business messages", "A second training round on real-style client, customer and invoice messages, so the situation picker isn't only steering the prompt."],
+  ["Share to Sloth Butler", "Send a message straight from email or a chat app instead of copy-pasting."],
+  ["Saved rates and terms", "Store your hourly rate, payment terms and deposit policy so every reply uses them."],
+  ["Follow-up sequences", "For unpaid invoices: a first reminder, a firmer second one and a final notice."],
+  ["Export your log", "Download your protected hours and money as CSV for your own records."],
+  ["More languages", "Italian, Dutch, Hindi and others, with native-speaker review."],
 ];
-
 function Head({ id, n, title, sub }: { id: string; n: number; title: string; sub?: string }) {
   return (
     <Reveal className="g-head" style={{ ["--c" as string]: C[n - 1] }}>
@@ -82,13 +81,13 @@ export default function Guide() {
           <section className="g-sec" aria-labelledby="what">
             <Head id="what" n={1} title="What it is" />
             <Reveal className="card g-card" delay={100} style={{ ["--c" as string]: C[0] }}>
-              <p className="g-lede">You paste a request you don&apos;t want to say yes to. Sloth Butler writes a short, polite no with one counter-offer, in English or Nigerian Pidgin. It runs on a small open model trained for this one job.</p>
-              <Link href="/#negotiate" className="btn-secondary g-cta">Try it</Link>
+              <p className="g-lede">Sloth Butler handles the messages you dread replying to: a client asking for free extra work, a customer pushing for a discount, an invoice that is weeks late, someone who wants to pay later, or a last-minute call. You paste the message, and it writes a polite, firm reply with one counter-offer, such as a paid option, a later date or a partial yes. You can copy it, listen to it or save it as a voice note, then log the hours and money it protected.</p>
+              <Link href="/#negotiate" className="btn-secondary g-cta">Write a reply</Link>
             </Reveal>
           </section>
 
           <section className="g-sec" aria-labelledby="use">
-            <Head id="use" n={2} title="How to use it" sub="The labels below match the buttons on the main page." />
+            <Head id="use" n={2} title="How to use it" sub="The labels below match the buttons on the main page. It takes about a minute." />
             <div className="g-two">
               <ol className="g-steps">
                 {STEPS.map(([t, d], i) => (
@@ -98,8 +97,8 @@ export default function Guide() {
                 ))}
               </ol>
               <Reveal className="card g-samples" delay={150} style={{ ["--c" as string]: C[1] }}>
-                <h3>Requests to try</h3>
-                <p className="muted sm">Copy one and paste it into the request box.</p>
+                <h3>Messages to try</h3>
+                <p className="muted sm">Copy one and paste it into &ldquo;Their message&rdquo;.</p>
                 {SAMPLES.map(([l, t]) => <Sample key={t} text={t} lang={l} />)}
               </Reveal>
             </div>
@@ -110,12 +109,12 @@ export default function Guide() {
             <div className="g-two">
               <Reveal className="card g-card g-prose" delay={100} style={{ ["--c" as string]: C[2] }}>
                 <p>The model is <strong>Qwen3-8B</strong>, an open-weight model anyone can download.</p>
-                <p>I trained a small add-on for it (a LoRA adapter, rank 32) on <a href="https://thinkingmachines.ai/tinker/">Tinker</a> using 288 example replies. Every example had to pass a rule check first: says no in the first sentence, exactly one offer, 80 words max, no made-up excuses, right language and tone. Training took about 3 minutes.</p>
-                <p><strong>Before training</strong> means plain Qwen3-8B with the same instructions. <strong>After training</strong> is the same model with the adapter on. The compare button shows both.</p>
-                <p>Voice is ElevenLabs, voice Alice. It only runs when you press Play.</p>
+                <p>I trained a small add-on for it (a LoRA adapter, rank 32) on <a href="https://thinkingmachines.ai/tinker/">Tinker</a> using 288 example replies. Every example had to pass a rule check first: clear answer in the first sentence, exactly one offer, 80 words max, no made-up excuses, right language and tone. Training took about 3 minutes. The situation you pick and your rate or deadline are added to the instructions, so the counter-offer fits the message.</p>
+                <p><strong>Before training</strong> means plain Qwen3-8B with the same instructions. <strong>After training</strong> is the same model with the adapter on. The compare button on the main page shows both.</p>
+                <p>Voice is ElevenLabs, voice Alice. It only runs when you press Play or Download mp3.</p>
               </Reveal>
-              <Reveal className="card g-flow" delay={200} style={{ ["--c" as string]: C[3] }} aria-label="Diagram: your request and settings go to Qwen3-8B with the trained adapter on Tinker, which returns a reply; Play sends the reply to ElevenLabs for audio.">
-                {[["Your request", "plus tone and language", C[0]], ["Qwen3-8B + adapter", "runs on Tinker", C[2]], ["Reply", "one no, one offer", C[3]], ["ElevenLabs (Alice)", "only if you press Play", C[4]]].map(([t, s, c], i) => (
+              <Reveal className="card g-flow" delay={200} style={{ ["--c" as string]: C[3] }} aria-label="Diagram: their message, the situation and your settings go to Qwen3-8B with the trained adapter on Tinker, which returns a reply; Play sends the reply to ElevenLabs for audio.">
+                {[["Their message", "plus situation, rate, tone", C[0]], ["Qwen3-8B + adapter", "runs on Tinker", C[2]], ["Reply", "firm answer, one offer", C[3]], ["ElevenLabs (Alice)", "play or download mp3", C[4]]].map(([t, s, c], i) => (
                   <div key={t} className="g-node" style={{ ["--c" as string]: c, ["--i" as string]: i }}>
                     <strong>{t}</strong><span>{s}</span>
                   </div>

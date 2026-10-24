@@ -5,11 +5,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "700", "800"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Sloth Butler: say not now, kindly",
-  description: "Paste a request you want to turn down. Get a short, polite no with one counter-offer.",
+  title: "Sloth Butler: replies to the messages you dread",
+  description: "Paste a client or customer message about scope creep, discounts, late invoices or last-minute asks. Get a polite, firm reply with one counter-offer.",
   icons: { icon: "/icon.svg", apple: "/brand/logo-180.png" },
 };
-export const viewport: Viewport = { themeColor: "#EEEAE8", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#14110E", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <html lang="en"><body className={inter.className}>{children}</body></html>;
