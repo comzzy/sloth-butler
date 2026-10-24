@@ -7,6 +7,7 @@ const PAINS = [
   ["“Any chance of 30% off?”", "Discounts"],
   ["“We’ll pay next month.”", "Late invoices"],
   ["“Send it now, I’ll pay later.”", "Credit"],
+  ["“I’ll get back to you.”", "Gone quiet"],
   ["“Quick call in ten minutes?”", "Last-minute asks"],
 ];
 
@@ -20,7 +21,7 @@ export default function Home() {
           <div className="hero-copy">
             <span className="eyebrow hero-in" style={{ ["--d" as string]: "0ms" }}><span className="eyebrow-dot" />For freelancers, small businesses and online sellers</span>
             <h1 id="hero-h" className="hero-in" style={{ ["--d" as string]: "120ms" }}>Sloth Butler handles the messages you dread replying to.</h1>
-            <p className="lede hero-in" style={{ ["--d" as string]: "260ms" }}>Clients asking for free extra work. Customers pushing for a discount. Invoices that are weeks late. Paste the message and get a polite, firm reply with one fair counter-offer, ready to send.</p>
+            <p className="lede hero-in" style={{ ["--d" as string]: "260ms" }}>Clients asking for free extra work. Customers pushing for a discount. Invoices that are weeks late. Save your rate and your floor once. Paste the message and get a polite, firm reply that quotes your real numbers, then let it plan the follow-ups if they go quiet.</p>
             <div className="hero-cta hero-in" style={{ ["--d" as string]: "400ms" }}>
               <a href="#negotiate" className="primary as-link">Write a reply<span aria-hidden="true">→</span></a>
               <a href="/guide" className="ghost-link">How it works</a>

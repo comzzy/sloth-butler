@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FollowupBadge } from "./FollowupBadge";
 import { Logo } from "./Logo";
 
 export function SiteHeader({ home = true }: { home?: boolean }) {
@@ -8,8 +9,9 @@ export function SiteHeader({ home = true }: { home?: boolean }) {
       <Link href={home ? "#top" : "/"} className="brand" aria-label="Sloth Butler home"><Logo size={38} /><span>Sloth Butler</span></Link>
       <nav aria-label="Main">
         <a href={`${p}#negotiate`}>Try it</a>
-        <a href={`${p}#ledger`}>Your log</a>
-        <a href={`${p}#proof`}>Results</a>
+        <a href={`${p}#terms`} className="nav-wide">Your terms</a>
+        <FollowupBadge home={home} />
+        <a href={`${p}#ledger`} className="nav-wide">Your log</a>
         <Link href="/guide" aria-current={home ? undefined : "page"}>Guide</Link>
       </nav>
     </header>

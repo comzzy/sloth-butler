@@ -70,3 +70,25 @@ export function IconProof(props: P) {
     </svg>
   );
 }
+
+/** Your terms: a price tag with a floor line. */
+export function IconTerms(props: P) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M24 6h14a4 4 0 0 1 4 4v14L24 42 6 24 24 6z" />
+      <circle cx="34" cy="14" r="2.5" />
+      <path d="M18 26l8-8M17 32h12" />
+    </svg>
+  );
+}
+
+/** Follow-ups: a calendar page with three steps. */
+export function IconFollow(props: P) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="7" y="10" width="34" height="30" rx="4" />
+      <path d="M7 18h34M16 6v8M32 6v8" />
+      <circle cx="15" cy="29" r="2.5" /><circle cx="24" cy="29" r="2.5" /><path d="M31 29l2.5 2.5L38 26" />
+    </svg>
+  );
+}

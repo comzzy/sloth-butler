@@ -460,3 +460,53 @@ input[type=text]::placeholder,.logbox input::placeholder{color:var(--s-mut2)}
   .log-list li{grid-template-columns:1fr auto;gap:4px 10px}.log-date{grid-row:2}.hero h1{font-size:clamp(32px,9vw,40px)}}
 @media (max-width:400px){.scen-grid{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.hero-in,.log-list li,.logbox,.rv .scen{animation:none!important;opacity:1!important;transform:none!important;transition:none!important}}
+
+/* Your terms */
+.terms-card{margin-bottom:24px}
+.tgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tf{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:500;color:var(--s-mut);min-width:0}
+.tf.wide{grid-column:span 2}
+.tf input,.tf .select,.planbox input{width:100%;min-width:0;font:inherit;font-size:15px;color:var(--s-ink);background:rgba(0,0,0,.28);border:1px solid var(--s-line2);border-radius:12px;padding:12px 14px;transition:border-color .6s var(--ease-sloth),box-shadow .6s var(--ease-sloth)}
+.tf input::placeholder,.planbox input::placeholder{color:var(--s-mut2)}
+.tpair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:8px}
+.terms-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;flex-wrap:wrap}
+.terms-foot .fine{flex:1 1 280px;margin:0}
+.terms-chip{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:600;color:#14110E;background:linear-gradient(145deg,#E9B872,#C08F45);border-radius:999px;padding:5px 11px;white-space:nowrap;animation:heroIn 1s var(--ease-sloth) both}
+.terms-chip.on{margin:14px 0 0}
+/* Follow-up planner */
+.planbox{margin-top:16px;padding:16px;border-radius:16px;border:1px dashed color-mix(in srgb,#6FB7D6 55%,transparent);background:rgba(111,183,214,.06);animation:heroIn 1.2s var(--ease-sloth) .4s both;--c:#6FB7D6;--cd:#4A93B3}
+.planbox .fine{margin:-6px 0 12px}
+.planbox-row{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,.8fr));gap:10px;margin-bottom:12px}
+.planbox label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--s-mut);min-width:0}
+.planbox .btn-secondary{width:100%;justify-content:center;height:46px}
+.planbox .note{margin:12px 0 0}.planbox .note a{color:#6FB7D6}
+/* Board */
+.fu-card{margin-bottom:8px}
+.fu-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.fu-tabs .chip{display:inline-flex;align-items:center;gap:8px}
+.fu-n{font-size:11.5px;font-weight:700;min-width:20px;text-align:center;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.1)}
+.chip.on .fu-n{background:rgba(20,17,14,.18)}
+.fu-list{list-style:none;padding:0;margin:0 0 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fu-item{padding:16px;border-radius:16px;background:rgba(0,0,0,.22);border:1px solid var(--s-line);min-width:0;opacity:0;animation:fadeUp .9s var(--ease-sloth) calc(var(--i)*90ms) forwards;transition:border-color .6s,transform .6s var(--ease-sloth)}
+.fu-item:hover{border-color:var(--s-line2);transform:translateY(-2px)}
+.fu-item.today{border-color:color-mix(in srgb,#6FB7D6 50%,transparent)}
+.fu-item.done{opacity:.7}
+.fu-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:10px}
+.fu-step{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6FB7D6}
+.fu-step.s1{color:#E9B872}.fu-step.s2{color:#EE8C6E}
+.fu-who{flex:1 1 100%;font-size:15px;overflow-wrap:anywhere}
+.fu-due{font-size:12.5px;color:var(--s-mut)}
+.fu-text{margin:0 0 14px;font-size:14.5px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}
+.fu-actions{display:flex;flex-wrap:wrap;gap:8px}
+.fu-card .empty{padding:12px}
+/* Nav badge */
+.nav-fu{display:inline-flex;align-items:center;gap:6px}
+.badge-count{display:inline-grid;place-items:center;min-width:19px;height:19px;padding:0 5px;border-radius:999px;font-size:11px;font-weight:800;color:#14110E;background:#6FB7D6;animation:badgeIn .8s var(--ease-sloth) both,pulse 2.4s 1s infinite}
+@media (max-width:960px){.tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.fu-list{grid-template-columns:1fr}}
+@media (max-width:640px){.nav-wide{display:none}}
+@media (max-width:560px){
+  .tgrid{grid-template-columns:1fr;gap:12px}.tf.wide{grid-column:auto}
+  .terms-foot .btn-secondary{width:100%;justify-content:center}
+  .planbox-row{grid-template-columns:repeat(3,minmax(0,1fr))}.planbox-row .wide{grid-column:1/-1}
+  .fu-actions .btn-ghost{flex:1 1 auto;justify-content:center}
+}
