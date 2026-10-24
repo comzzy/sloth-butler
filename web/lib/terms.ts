@@ -41,7 +41,7 @@ export function termsLine(t: Terms) {
     t.lateFee && `late fee: ${t.lateFee}`,
     t.available && `next available: ${t.available}`,
   ].filter(Boolean);
-  return `My terms: ${parts.join("; ")}. Use these exact figures in the counter-offer. Never quote a price below my minimum or a discount above my limit.`;
+  return `My terms: ${parts.join("; ")}. Use these exact figures in the counter-offer. Never quote a price below my minimum or a discount above my limit, and a discount must never take the total below my minimum. If the price is already at my minimum, offer something other than money off (smaller scope, faster payment, a later date).`;
 }
 
 const UNIT = /^\s*(?:\/|per\s+|an?\s+|each\s+|la\s+|por\s+)?(?:h\b|hr|hour|day|week|month|item|page|unit|hora|día|dia|heure|jour|stunde|tag)/i;
@@ -108,7 +108,9 @@ export function checkTerms(text: string, t: Terms) {
       const before = text.slice(Math.max(0, at - 40), at).toLowerCase();
       if (NEG.test(before)) continue; // quoting their ask back while refusing it
       if (/^\s*(upfront|up front|deposit|now|today|first|down)/i.test(after)) continue;
-      if (UNIT.test(after) || /deposit|upfront|up front|anticipo|\bnow\b|first|part|instal|late fee|fee of|today|this week|per (hour|day)/.test(before)) continue;
+      const near = before.slice(-22);
+      const total = /(bring|bringing|brings|total|comes? to|coming to|making|makes|so it'?s|down to|for just|for only|final|quedar|queda|dejarlo|ficar|fica)\b[^.!?]{0,14}$/.test(before);
+      if (UNIT.test(after) || (!total && /deposit|upfront|up front|anticipo|\bnow\b|first|part|instal|late fee|fee of|today|this week|per (hour|day)/.test(near))) continue;
       if (!sameCur(curOf(m[1] ?? m[6] ?? ""), t.currency)) continue;
       if (!Number.isFinite(n) || n <= 0) continue;
       if (n < t.minProject) { issues.push(`price ${m[0].trim()} is below the minimum`); continue; }
@@ -129,7 +131,7 @@ export function correctionLine(t: Terms) {
 
 /** Last resort: drop every sentence that breaks the terms, then state the real terms. */
 export function enforceTerms(text: string, t: Terms) {
-  const parts = text.match(/[^.!?\n]+(?:[.!?]+|\n+|$)/g) || [text];
+  const parts = text.match(/(?:[^.!?\n]|[.!?](?=\S))+(?:[.!?]+(?=\s|$)|\n+|$)/g) || [text];
   const kept = parts.filter((s, i) => !checkTerms(s, t).length && !(i > 0 && checkTerms(parts[i - 1] + s, t).length));
   return `${kept.join("").trim()}\n\n${correctionLine(t)}`.trim();
 }

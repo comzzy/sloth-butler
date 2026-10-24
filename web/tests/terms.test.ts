@@ -48,5 +48,8 @@ ok("I can do 20% off.", { maxDiscount: 20 });
 
 t("enforce removes low totals", () => { const out = enforceTerms("Thanks for asking. I can take 10% off the MX$8,000. Talk soon.", MXN); assert.deepEqual(checkTerms(out, MXN), []); assert.match(out, /Thanks for asking/); assert.match(out, /minimum/); });
 t("enforce removes split discount", () => { const out = enforceTerms("I can give 10% off. That makes it MX$7,200.", MXN); assert.deepEqual(checkTerms(out, MXN), []); });
+bad("With a 10 % discount only if you pay upfront, bringing it to MX$7,200.", MXN);
+ok("A deposit of MX$2,000 upfront, then MX$8,000 total.", MXN);
+t("enforce keeps decimals", () => { const out = enforceTerms("No puedo aceptar 6.500 pesos. Te lo dejo en 7.000 pesos.", MXN); assert.match(out, /6\.500/); assert.doesNotMatch(out, /7\.000/); });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
