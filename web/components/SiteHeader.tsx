@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FollowupBadge } from "./FollowupBadge";
 import { Logo } from "./Logo";
+import { NavMore } from "./NavMore";
 
 export function SiteHeader({ home = true }: { home?: boolean }) {
   const p = home ? "" : "/";
@@ -13,6 +14,7 @@ export function SiteHeader({ home = true }: { home?: boolean }) {
         <FollowupBadge home={home} />
         <a href={`${p}#ledger`} className="nav-wide">Your log</a>
         <Link href="/guide" aria-current={home ? undefined : "page"}>Guide</Link>
+        <NavMore p={p} />
       </nav>
     </header>
   );

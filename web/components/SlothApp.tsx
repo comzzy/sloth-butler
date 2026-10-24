@@ -256,7 +256,7 @@ export function SlothApp() {
     setFuLoading(true);
     try {
       const r = await fetch("/api/followups", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ request, scenario, language, amount: Number(amount) || undefined, days: fuDays.map(Number), terms: usingTerms ? terms : undefined }) });
+        body: JSON.stringify({ request, scenario, language, amount: Number(amount) || undefined, days: fuDays.map(Number), today: new Date().toLocaleDateString("en-CA"), terms: usingTerms ? terms : undefined }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Couldn't plan the follow-ups.");
       const plan: FuPlan = { id: Date.now(), createdAt: new Date().toISOString(), scenario, label: sc.label, who: fuWho.trim() || (scenario === "late-invoice" ? "Unpaid invoice" : "Waiting on a reply"),
@@ -460,7 +460,7 @@ export function SlothApp() {
             ))}
           </div>
           {fuShown.length ? (
-            <ul className="fu-list">
+            <ul className={`fu-list${fuShown.length === 1 ? " single" : ""}`}>
               {fuShown.map(({ p, s, i, st, due }, k) => {
                 const id = `${p.id}-${i}`;
                 return (

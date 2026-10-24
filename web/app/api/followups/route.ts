@@ -1,6 +1,7 @@
 import { generateReply, modelConfig, ModelError } from "@/lib/model";
 import { LANGUAGES, type Language, type Scenario, type Style } from "@/lib/prompt";
 import { checkTerms, correctionLine, fmt, parseTerms, termsLine } from "@/lib/terms";
+import { addDays, fixOpener, longDate, parseDay, pinDates, startsWithRefusal } from "@/lib/followup-text";
 import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -27,17 +28,24 @@ export async function POST(req: Request) {
   if (!rl.ok) return json({ error: `Too many requests. Try again in ${rl.retryAfter}s.` }, 429, { "Retry-After": String(rl.retryAfter) });
 
   const variant = modelConfig().finetunePath ? "finetune" : "base";
+  const today = parseDay(body.today);
+  const sendAt = days.map(d => addDays(today, d));
+  const deadlines = sendAt.map((d, i) => longDate(i < 2 ? addDays(today, Math.max(days[i + 1], days[i] + 1)) : addDays(d, 7)));
+  const ask = scenario === "waiting" ? "Could you let me know by" : "Please settle this by";
   const owed = amount ? `The amount owed or on the table is ${fmt(amount, terms?.currency)}.` : "";
   try {
     const steps = await Promise.all(STEPS.map(async (s, i) => {
       const r = await generateReply(variant, request, s.style, language, scenario, {
         terms: terms && termsLine(terms),
-        extra: `${s.brief(terms?.lateFee ?? "")} It will be sent ${days[i]} days after their last message. ${owed} Do not decline anything; this is a follow-up, not a refusal.`.trim(),
+        extra: `${s.brief(terms?.lateFee ?? "")} Today is ${longDate(sendAt[i])}. The only date you may mention is ${deadlines[i]}: ask for ${scenario === "waiting" ? "an answer" : "payment"} by ${deadlines[i]}. Do not mention any other date. ${owed} Do not decline anything and do not start with "No"; this is a follow-up, not a refusal. Open the way a ${s.title.toLowerCase()} would.`.trim(),
       });
-      let text = r.text;
+      const opener = fixOpener(r.text, s.kind);
+      const pinned = pinDates(opener.text, deadlines[i], ask);
+      let text = pinned.text;
       if (terms && checkTerms(text, terms).length) text = `${text}\n\n${correctionLine(terms)}`;
       if (s.kind === "final" && terms?.lateFee && !/late fee|fee/i.test(text)) text = `${text}\n\nAfter that date, my late fee applies: ${terms.lateFee}.`;
-      return { kind: s.kind, title: s.title, offsetDays: days[i], text };
+      if (startsWithRefusal(text)) text = fixOpener(text, s.kind).text;
+      return { kind: s.kind, title: s.title, offsetDays: days[i], sendOn: sendAt[i].toISOString().slice(0, 10), deadline: deadlines[i], text, fixes: { opener: opener.changed, dates: pinned.fixed } };
     }));
     return json({ steps, scenario, model: variant, terms: Boolean(terms) });
   } catch (e) {
