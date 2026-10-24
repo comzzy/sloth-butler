@@ -58,6 +58,7 @@ const ROADMAP: [string, string][] = [
   ["Share to Sloth Butler", "Send a message straight from email or a chat app instead of copy-pasting."],
   ["Reminders on your phone", "A notification when a follow-up is due, instead of checking the board."],
   ["Export your log", "Download your protected hours and money as CSV for your own records."],
+  ["Shared terms for a team", "One set of rates and floors that everyone on a small team replies from."],
   ["More languages", "Italian, Dutch, Hindi and others, with native-speaker review."],
 ];
 function Head({ id, n, title, sub }: { id: string; n: number; title: string; sub?: string }) {
