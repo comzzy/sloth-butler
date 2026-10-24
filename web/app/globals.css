@@ -562,3 +562,6 @@ h1,h2,h3{text-wrap:balance}
 .hero .lede{margin-top:20px}
 .hero-cta{margin-top:28px}
 @media (max-width:640px){.hero h1{font-size:min(9.5vw,42px);letter-spacing:-.035em;margin-top:18px}.hero .lede{margin-top:16px}.hero-cta{margin-top:24px}}
+.hero .lede{margin-bottom:0;text-wrap:pretty}
+p{text-wrap:pretty}
+@media (min-width:641px){.hero .eyebrow{white-space:nowrap;font-size:12px}}
