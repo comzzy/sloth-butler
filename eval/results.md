@@ -1,90 +1,16 @@
-# Eval: base Qwen3-8B vs Sloth Butler LoRA
+# Eval: base Qwen3-8B vs Sloth Butler replies LoRA
 
-Test set: 60 held-out requests (`data/test.jsonl`), never used in training. Same system prompt, renderer (`qwen3_disable_thinking`), temperature 0.7, sampling seed 2026.
-Checkpoint: `tinker://edb0b1c8-9aea-5b41-8fc5-a9a4df01009a:train:0/sampler_weights/sloth-butler-final`. Judge: openai/gpt-oss-120b (Groq), temperature 0.
+Held-out set: 100 messages (`data/test.jsonl`). Checkpoint `tinker://ea588015-cff4-5702-99e8-ce0bf3d5af5b:train:0/sampler_weights/sloth-butler-replies`. Judge openai/gpt-oss-120b, rubric in `scripts/judge.py`, pass = score >= 4/5.
 
 | Metric | Base | Fine-tuned |
 |---|---|---|
-| Checker pass rate (all 8 rules) | 26.7% | 85.0% |
-|   rule: decline_first | 86.7% | 100.0% |
-|   rule: one_offer | 43.3% | 100.0% |
-|   rule: max_80_words | 96.7% | 100.0% |
-|   rule: no_double_apology | 100.0% | 100.0% |
-|   rule: no_ai_tics | 93.3% | 100.0% |
-|   rule: no_false_excuse | 96.7% | 98.3% |
-|   rule: language_match | 73.3% | 100.0% |
-|   rule: style_match | 81.7% | 85.0% |
-| Avg words per reply | 38.6 | 20.3 |
-| AI-tic hits per 100 replies | 6.7 | 0.0 |
-| Pidgin judged correct (n=24) | 4.2% | 87.5% |
-| Latency per reply, mean / median (s) | 1.65 / 1.48 | 2.57 / 1.54 |
-| Avg completion tokens | 58.2 | 29.1 |
-| Est. cost per reply (USD) | $0.000082 | $0.000064 |
+| All criteria pass | 41% | 63% |
+| sendable | 84% | 93% |
+| firm but polite | 84% | 97% |
+| has counter offer | 74% | 90% |
+| fits scenario | 67% | 76% |
+| correct language | 90% | 94% |
+| Avg words | 51.1 | 34.4 |
+| Pidgin correct (n=10) | 10% | 50% |
 
-## Blind pairwise preference ("which would you actually send?")
-
-Reply order randomized per item (seed 2026). Fine-tuned preferred **38/60**, base 22/60.
-
-| Language | Fine-tuned wins | Base wins |
-|---|---|---|
-| English | 16 | 20 |
-| Nigerian Pidgin | 22 | 2 |
-
-Cost is estimated from token counts at Tinker list prices for Qwen3-8B (prefill $0.195/M, sample $0.60/M, as of 2026-10-19); it is not read from a bill. Latency is wall-clock time of one `sample` call from this machine, including network, with 8 concurrent requests.
-
-## Examples
-
-### colleague asking you to cover their shift/task (soft, Nigerian Pidgin)
-
-Request:
-
-> Abeg, I need you to take over my shift at the clinic tomorrow morning 8‑12. My mother is sick and I must go see her. I’ll pay you ₦5,000 for the cover if you can help.
-
-Base (checker fail: no_false_excuse, language_match):
-
-> Abeg, I can’t take over your shift tomorrow morning. My mother is sick, and I need to go see her. But I can help you later this week, like on Friday, if you still need someone. I’m really sorry, but I can’t do it now.
-
-Fine-tuned (checker pass):
-
-> I sorry, I no fit take over your shift tomorrow morning. I fit help you on the afternoon shift on Friday, if that still works for you.
-
-### group-chat ask (firm, Nigerian Pidgin)
-
-Request:
-
-> Good afternoon, please remember that the rent for the 3B flat (N150,000) is due on 1st November. If you can’t pay on time, we need to discuss a payment plan.
-
-Base (checker fail: language_match, style_match):
-
-> E no go pay rent now, I no go pay. I go pay next week. No sorry.
-
-Fine-tuned (checker pass):
-
-> I no fit pay di rent for di 3B flat on 1st November. I fit send di half di amount on 15th November.
-
-### event/party invite (firm, English)
-
-Request:
-
-> Brother, we are having a special prayer night on 15th Oct, 9pm at St. Michael's Church, Lagos. Please be there, bring your family, and help with the refreshments budget of ₦5,000.
-
-Base (checker fail: style_match):
-
-> I can't attend the prayer night. I'll be unavailable on the 15th. You can reach me on the 20th to discuss the refreshments budget. I'm sorry, but I can't help with the arrangement this time.
-
-Fine-tuned (checker pass):
-
-> I can't attend the prayer night on Oct 15th. I can contribute ₦2,000 to the refreshments budget.
-
-## What still fails
-
-- English quality is not better by judge preference. On English items the judge preferred the base model 20 to 16. The fine-tune is shorter and more uniform; the judge often rewarded the base model's extra warmth and context. Most of the pairwise win comes from Pidgin (22 to 2).
-- Replies are formulaic: almost always "I can't X. I can Y." This passes the checker but reads flat, especially for the `soft` style.
-- Some counter-offers do not make sense: offering to bring dessert to a potluck three days after it happened, offering a gift "on the day of the party" after declining the party, offering a partial payment on a debt the user owes.
-- The fine-tune sometimes adds "Sorry for any inconvenience", a corporate phrase not on the tic list.
-- `maybe-later` style fails most often (style_match 85%): the model gives a date for the counter-offer but does not frame it as revisiting the request.
-- The checker is regex-based. It has false positives (one fine-tune reply was flagged as a false excuse because the request names "Toronto General Hospital") and false negatives (it cannot tell whether an offer is sensible). Treat its numbers as a lower bound on rule-following, not a quality score.
-- The judge is a single model (gpt-oss-120b), which is also the teacher that wrote the training data. That can bias the judge toward the fine-tune's style. No human rating has been done yet.
-- Pidgin correctness is judged by the same LLM, not by native speakers. n=24.
-- Test requests were generated by the same teacher as training requests, so they are in-distribution. Real user messages may be harder.
-- Single run, single seed. No confidence intervals.
+Blind pairwise: fine-tuned preferred 56/100.

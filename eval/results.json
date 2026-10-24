@@ -1,57 +1,75 @@
 {
   "seed": 2026,
   "temperature": 0.7,
-  "checkpoint": "tinker://edb0b1c8-9aea-5b41-8fc5-a9a4df01009a:train:0/sampler_weights/sloth-butler-final",
+  "checkpoint": "tinker://ea588015-cff4-5702-99e8-ce0bf3d5af5b:train:0/sampler_weights/sloth-butler-replies",
   "base_model": "Qwen/Qwen3-8B",
-  "judge": "openai/gpt-oss-120b (Groq)",
-  "n_test": 60,
+  "judge": "openai/gpt-oss-120b",
+  "n_test": 100,
+  "criteria": [
+    "sendable",
+    "firm_but_polite",
+    "has_counter_offer",
+    "fits_scenario",
+    "correct_language"
+  ],
+  "pass_threshold": "score >= 4 of 5 from the judge",
   "base": {
-    "n": 60,
-    "pass_rate": 0.26666666666666666,
+    "n": 100,
+    "judged": 100,
+    "pass_rate": 0.41,
     "per_rule": {
-      "decline_first": 0.8666666666666667,
-      "one_offer": 0.43333333333333335,
-      "max_80_words": 0.9666666666666667,
-      "no_double_apology": 1.0,
-      "no_ai_tics": 0.9333333333333333,
-      "no_false_excuse": 0.9666666666666667,
-      "language_match": 0.7333333333333333,
-      "style_match": 0.8166666666666667
+      "sendable": 0.84,
+      "firm_but_polite": 0.84,
+      "has_counter_offer": 0.74,
+      "fits_scenario": 0.67,
+      "correct_language": 0.9
     },
-    "avg_words": 38.63333333333333,
-    "ai_tics_per_100": 6.666666666666667,
-    "pidgin_correct_rate": 0.041666666666666664,
-    "pidgin_n": 24,
-    "latency_s_mean": 1.6477867682774863,
-    "latency_s_median": 1.4827779531478882,
-    "cost_usd_per_reply": 8.15545e-05,
-    "avg_completion_tokens": 58.21666666666667
+    "avg_score": {
+      "sendable": 4.47,
+      "firm_but_polite": 4.42,
+      "has_counter_offer": 4.23,
+      "fits_scenario": 3.94,
+      "correct_language": 4.62
+    },
+    "avg_words": 51.15,
+    "ai_tics_per_100": 7.0,
+    "pidgin_correct_rate": 0.1,
+    "pidgin_n": 10,
+    "latency_s_mean": 2.651935453414917,
+    "latency_s_median": 2.3077346086502075,
+    "cost_usd_per_reply": 0.00014093805,
+    "avg_completion_tokens": 80.98
   },
   "finetuned": {
-    "n": 60,
-    "pass_rate": 0.85,
+    "n": 100,
+    "judged": 100,
+    "pass_rate": 0.63,
     "per_rule": {
-      "decline_first": 1.0,
-      "one_offer": 1.0,
-      "max_80_words": 1.0,
-      "no_double_apology": 1.0,
-      "no_ai_tics": 1.0,
-      "no_false_excuse": 0.9833333333333333,
-      "language_match": 1.0,
-      "style_match": 0.85
+      "sendable": 0.93,
+      "firm_but_polite": 0.97,
+      "has_counter_offer": 0.9,
+      "fits_scenario": 0.76,
+      "correct_language": 0.94
     },
-    "avg_words": 20.266666666666666,
+    "avg_score": {
+      "sendable": 4.72,
+      "firm_but_polite": 4.72,
+      "has_counter_offer": 4.69,
+      "fits_scenario": 4.23,
+      "correct_language": 4.81
+    },
+    "avg_words": 34.37,
     "ai_tics_per_100": 0.0,
-    "pidgin_correct_rate": 0.875,
-    "pidgin_n": 24,
-    "latency_s_mean": 2.5670551856358848,
-    "latency_s_median": 1.5374622344970703,
-    "cost_usd_per_reply": 6.40745e-05,
-    "avg_completion_tokens": 29.083333333333332
+    "pidgin_correct_rate": 0.5,
+    "pidgin_n": 10,
+    "latency_s_mean": 3.353836266994476,
+    "latency_s_median": 2.2953468561172485,
+    "cost_usd_per_reply": 0.00012847005,
+    "avg_completion_tokens": 60.2
   },
   "pairwise": {
-    "n": 60,
-    "finetuned_wins": 38,
-    "base_wins": 22
+    "n": 100,
+    "finetuned_wins": 56,
+    "base_wins": 44
   }
 }

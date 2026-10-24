@@ -6,3 +6,5 @@ tvenv/
 logs/
 *.log
 .vercel
+data/.gen_cache.jsonl
+train_state.json
