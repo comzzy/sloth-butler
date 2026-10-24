@@ -12,8 +12,9 @@ It is built for freelancers, consultants, small business owners and online selle
 
 ## What it does
 
-- **Situation picker.** Choose what kind of message it is: free extra work (scope creep), a discount request, a late or unpaid invoice, a pay-later or credit request, a last-minute favour or meeting, or something else. Each situation tells the model what a sensible counter-offer looks like.
-- **Your context.** Optionally add your rate or price and any deadline. The reply can use them, for example quoting a paid add-on at your hourly rate or naming the date you expect payment.
+- **Situation picker.** Choose what kind of message it is: free extra work (scope creep), a discount request, a late or unpaid invoice, "I'll get back to you", a pay-later or credit request, a last-minute favour or meeting, or something else. Each situation tells the model what a sensible counter-offer looks like.
+- **Your terms.** Save your name or business, currency, hourly or day rate, minimum project price, the biggest discount you'll give, deposit or payment terms, late fee and when you're next available. They are sent with every reply, so the counter-offer quotes your real figures. The server checks each reply: if it quotes a price under your minimum or a discount over your limit, it rewrites it once, and if that still fails it adds a line with your real terms. The reply shows a "Using your terms" chip.
+- **Follow-ups.** For late or unpaid invoices and "I'll get back to you" replies, press **Plan follow-ups** to get a friendly nudge, a firmer reminder and a final notice with your late fee, due at +3, +7 and +14 days (editable). They go on a Follow-ups board (Due today, Upcoming, Done) with copy, voice note and mark-sent buttons, and the menu shows how many are due today. Marking an invoice paid adds it to your log as money recovered.
 - **Tone and language.** `soft`, `firm` or `maybe-later`. Replies can be written in English, Spanish, French, Portuguese, German or Nigerian Pidgin.
 - **Ready to send.** Copy the reply, play it in the ElevenLabs voice Alice, or download it as an mp3 voice note for chat apps.
 - **A log of what you protected.** When you send a reply, log the hours and the money it protected. Pick your currency (USD by default; EUR, GBP, CAD, AUD, INR, JPY and more). Totals count up on the page. The log is stored in your browser's local storage only.
@@ -22,18 +23,19 @@ It is built for freelancers, consultants, small business owners and online selle
 ## How to use it
 
 1. Open https://sloth-butler.vercel.app and press **Write a reply**.
-2. Pick the situation.
-3. Paste the message you received into **Their message**.
-4. Add your rate or a deadline if it matters.
+2. Fill in **Your terms** once and press **Save my terms**.
+3. Pick the situation and paste the message you received into **Their message**.
+4. Add the amount involved or a deadline if it matters.
 5. Pick a tone and a language, then press **Write my reply**.
 6. Read it. Copy it, play it, or download the mp3. Press **Write another** for a different version.
-7. If you send it, enter the hours and money it protected and press **Save to log**.
+7. For a late invoice or a client who went quiet, press **Plan follow-ups**, then work through the Follow-ups board and press **Mark sent** or **Mark paid**.
+8. If you send a reply, enter the hours and money it protected and press **Save to log**.
 
 Always read the reply before sending. The model doesn't know your contract or your calendar, so make sure the counter-offer is one you'll honour.
 
 ## Example
 
-Situation: free extra work. Tone: firm. Rate: $60/hour.
+Situation: free extra work. Tone: firm. Terms: $60/hour, $900 minimum.
 
 > Since you're already doing the logo, could you also put together a few social media banners? Should be quick for you.
 
@@ -43,12 +45,12 @@ A typical reply:
 
 ## How it works
 
-1. The browser sends the message, the situation, your optional rate and deadline, and the tone and language to `POST /api/decline`.
-2. The server builds the same prompt format the model was trained on (system prompt from `scripts/common.py`, `Style` and `Language` lines), adds a short description of the situation and your context, and renders it with the `qwen3_disable_thinking` template.
+1. The browser sends the message, the situation, your saved terms, an optional amount and deadline, and the tone and language to `POST /api/decline`. Follow-up plans go to `POST /api/followups`, which writes the three steps in parallel.
+2. The server builds the same prompt format the model was trained on (system prompt from `scripts/common.py`, `Style` and `Language` lines), adds a short description of the situation, your context and a line with your terms and limits, and renders it with the `qwen3_disable_thinking` template.
 3. It samples from the fine-tuned Qwen3-8B LoRA adapter on Tinker through the OpenAI-compatible `/completions` endpoint. The checkpoint path comes from the `MODEL_FINETUNE_PATH` environment variable.
 4. If you press Play or Download, `POST /api/voice` turns the reply into speech with ElevenLabs (voice Alice) and caches the mp3.
 
-There is no database and no account. Message text is not logged.
+There is no database and no account. Message text is not logged. Your terms, follow-ups and log are kept in your browser's local storage.
 
 ### API
 
@@ -56,7 +58,12 @@ There is no database and no account. Message text is not logged.
 curl -s https://sloth-butler.vercel.app/api/decline \
   -H 'content-type: application/json' \
   -d '{"request":"Can you do 30% off? Budget is tight.","style":"firm","language":"English",
-       "scenario":"discount","context":{"rate":"$900 flat","deadline":"start next Monday"}}'
+       "scenario":"discount","terms":{"currency":"USD","rate":60,"rateUnit":"hour","minProject":900,"maxDiscount":10,"payment":"50% upfront"}}'
+
+curl -s https://sloth-butler.vercel.app/api/followups \
+  -H 'content-type: application/json' \
+  -d '{"request":"Sorry, can we push invoice #104 to next month?","scenario":"late-invoice","amount":1200,
+       "days":[3,7,14],"terms":{"currency":"USD","lateFee":"2% per month after 14 days","payment":"net 14"}}'
 ```
 
 | Field | Values |
