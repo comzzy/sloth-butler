@@ -2,7 +2,9 @@
 
 Sloth Butler writes the reply you keep putting off. You paste a message you dread (a meeting invite, a favour, a boss's "quick ask", a group-chat request, a family request, a client adding scope) and it gives back a short, kind, firm "not now" with one concrete counter-offer. You pick a style (`soft`, `firm`, `maybe-later`) and a language (English or Nigerian Pidgin).
 
-The model is Qwen3-8B with a small LoRA adapter trained on Tinker. This repository holds phase 1: the dataset, the checker, the training script, and an evaluation against the base model. A voice version (ElevenLabs) and a web app come later.
+The model is Qwen3-8B with a small LoRA adapter trained on Tinker. This repository holds phase 1: the dataset, the checker, the training script, and an evaluation against the base model. The web app lives in `web/` and includes a voice reading (ElevenLabs).
+
+Try it here: https://sloth-butler.vercel.app
 
 ## The problem
 
