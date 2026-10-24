@@ -56,6 +56,8 @@ export function checkTerms(text: string, t: Terms) {
       const raw = (m[2] ?? m[4]).replace(/,/g, ""); let n = Number(raw); if (m[3] || m[5]) n *= 1000;
       const after = text.slice((m.index ?? 0) + m[0].length, (m.index ?? 0) + m[0].length + 14);
       const before = text.slice(Math.max(0, (m.index ?? 0) - 40), m.index).toLowerCase();
+      if (/(can't|cannot|can not|won't|not|no|instead of|rather than)\b[^.!?]{0,30}$/.test(before)) continue; // quoting their ask back while refusing it
+      if (/^\s*(upfront|up front|deposit|now|today|first|down)/i.test(after)) continue;
       if (UNIT.test(after) || /deposit|upfront|up front|now|first|part|instal|late fee|fee of|today|this week/.test(before)) continue;
       const code = (m[1] ?? m[6] ?? "").trim(); const cur = SYMBOLS[code] || (/^[A-Z]{3}$/.test(code) ? code : undefined);
       if (cur && t.currency && cur !== t.currency) continue;
@@ -64,7 +66,9 @@ export function checkTerms(text: string, t: Terms) {
   }
   if (t.maxDiscount !== undefined) {
     for (const m of text.matchAll(/(\d+(?:\.\d+)?)\s?%\s*(off|discount)|(discount|reduction)\s+of\s+(\d+(?:\.\d+)?)\s?%/gi)) {
-      const n = Number(m[1] ?? m[4]); if (n > t.maxDiscount) issues.push(`${n}% discount is above the limit`);
+      const n = Number(m[1] ?? m[4]); const pre = text.slice(Math.max(0, (m.index ?? 0) - 40), m.index).toLowerCase();
+      if (/(can't|cannot|won't|not|no)\b[^.!?]{0,30}$/.test(pre)) continue;
+      if (n > t.maxDiscount) issues.push(`${n}% discount is above the limit`);
     }
   }
   return issues;

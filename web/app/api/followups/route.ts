@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       });
       let text = r.text;
       if (terms && checkTerms(text, terms).length) text = `${text}\n\n${correctionLine(terms)}`;
+      if (s.kind === "final" && terms?.lateFee && !/late fee|fee/i.test(text)) text = `${text}\n\nAfter that date, my late fee applies: ${terms.lateFee}.`;
       return { kind: s.kind, title: s.title, offsetDays: days[i], text };
     }));
     return json({ steps, scenario, model: variant, terms: Boolean(terms) });
