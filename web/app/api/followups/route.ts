@@ -32,12 +32,13 @@ export async function POST(req: Request) {
   const sendAt = days.map(d => addDays(today, d));
   const deadlines = sendAt.map((d, i) => longDate(i < 2 ? addDays(today, Math.max(days[i + 1], days[i] + 1)) : addDays(d, 7)));
   const ask = scenario === "waiting" ? "Could you let me know by" : "Please settle this by";
+  const who = scenario === "waiting" ? "Context: I sent them a quote or proposal and they said they would get back to me, then went quiet. I am the one waiting; I am asking them for their decision. Never apologise." : "Context: I sent an invoice and it is unpaid. I am asking them to pay. Never apologise.";
   const owed = amount ? `The amount owed or on the table is ${fmt(amount, terms?.currency)}.` : "";
   try {
     const steps = await Promise.all(STEPS.map(async (s, i) => {
       const r = await generateReply(variant, request, s.style, language, scenario, {
         terms: terms && termsLine(terms),
-        extra: `${s.brief(scenario === "late-invoice" ? terms?.lateFee ?? "" : "")} Today is ${longDate(sendAt[i])}. The only date you may mention is ${deadlines[i]}: ask for ${scenario === "waiting" ? "an answer" : "payment"} by ${deadlines[i]}. Do not mention any other date. ${owed} Do not decline anything and do not start with "No"; this is a follow-up, not a refusal. Open the way a ${s.title.toLowerCase()} would.`.trim(),
+        extra: `${who} ${s.brief(scenario === "late-invoice" ? terms?.lateFee ?? "" : "")} Today is ${longDate(sendAt[i])}. The only date you may mention is ${deadlines[i]}: ask for ${scenario === "waiting" ? "an answer" : "payment"} by ${deadlines[i]}. Do not mention any other date. ${owed} Do not decline anything and do not start with "No"; this is a follow-up, not a refusal. Open the way a ${s.title.toLowerCase()} would.`.trim(),
       });
       const opener = fixOpener(r.text, s.kind);
       const pinned = pinDates(opener.text, deadlines[i], ask);

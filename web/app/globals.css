@@ -521,3 +521,7 @@ input[type=text]::placeholder,.logbox input::placeholder{color:var(--s-mut2)}
 .nav-menu a{padding:11px 12px;border-radius:10px;font-size:15px}
 .nav-menu a:hover{background:rgba(255,240,220,.07)}
 @media (max-width:640px){.nav-more{display:block}}
+
+nav{align-items:center}
+nav>a,nav>.nav-more{display:inline-flex;align-items:center;line-height:1}
+@media (max-width:640px){nav>a.nav-wide{display:none}}
