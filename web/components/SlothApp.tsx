@@ -339,7 +339,7 @@ export function SlothApp() {
                 <legend className="label">What kind of message is it?</legend>
                 <div className="scen-grid">
                   {SCENARIO_UI.map((s, i) => (
-                    <label key={s.id} className={`scen ${scenario === s.id ? "on" : ""}`} style={{ ["--i" as string]: i }}>
+                    <label key={s.id} className={`scen ${s.id === "other" ? "scen-other " : ""}${scenario === s.id ? "on" : ""}`} style={{ ["--i" as string]: i }}>
                       <input type="radio" name="scenario" value={s.id} checked={scenario === s.id} onChange={() => pickScenario(s.id)} />
                       <strong>{s.label}</strong><span>{s.hint}</span>
                     </label>
