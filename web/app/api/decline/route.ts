@@ -1,5 +1,5 @@
 import { generateReply, modelConfig, ModelError } from "@/lib/model";
-import { LANGUAGES, STYLES, type Language, type Style } from "@/lib/prompt";
+import { LANGUAGES, SCENARIO_IDS, STYLES, type Context, type Language, type Scenario, type Style } from "@/lib/prompt";
 import { clientIp, json, rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -16,10 +16,15 @@ export async function POST(req: Request) {
   const style = body.style as Style;
   const language = body.language as Language;
   const compare = body.compare === true;
+  const scenario = typeof body.scenario === "string" && body.scenario ? body.scenario as Scenario : undefined;
+  const raw = (body.context && typeof body.context === "object" ? body.context : {}) as Record<string, unknown>;
+  const field = (k: string, max: number) => typeof raw[k] === "string" ? (raw[k] as string).trim().slice(0, max) || undefined : undefined;
+  const ctx: Context = { rate: field("rate", 80), deadline: field("deadline", 80), notes: field("notes", 300) };
   if (request.length < 5) return json({ error: "Paste a request (at least 5 characters)." }, 400);
   if (request.length > 2000) return json({ error: "That request is too long. Keep it under 2,000 characters." }, 400);
   if (!STYLES.includes(style)) return json({ error: "Pick a style: soft, firm or maybe-later." }, 400);
-  if (!LANGUAGES.includes(language)) return json({ error: "Pick a language: English or Nigerian Pidgin." }, 400);
+  if (!LANGUAGES.includes(language)) return json({ error: `Pick a language: ${LANGUAGES.join(", ")}.` }, 400);
+  if (scenario && !SCENARIO_IDS.includes(scenario)) return json({ error: `Pick a situation: ${SCENARIO_IDS.join(", ")}.` }, 400);
 
   const rl = rateLimit(`decline:${clientIp(req)}`, compare ? 6 : 15);
   if (!rl.ok) return json({ error: `Too many requests. Try again in ${rl.retryAfter}s.` }, 429, { "Retry-After": String(rl.retryAfter) });
@@ -27,8 +32,8 @@ export async function POST(req: Request) {
   try {
     if (compare) {
       const [base, finetune] = await Promise.allSettled([
-        generateReply("base", request, style, language),
-        generateReply("finetune", request, style, language),
+        generateReply("base", request, style, language, scenario, ctx),
+        generateReply("finetune", request, style, language, scenario, ctx),
       ]);
       const pack = (r: PromiseSettledResult<Awaited<ReturnType<typeof generateReply>>>) =>
         r.status === "fulfilled" ? r.value : { error: (r.reason as Error).message };
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
     }
     const cfg = modelConfig();
     const variant = cfg.finetunePath ? "finetune" : "base";
-    const out = await generateReply(variant, request, style, language);
+    const out = await generateReply(variant, request, style, language, scenario, ctx);
     return json({ ...out, fallback: variant === "base" ? "The trained model isn't set up, so this came from the untrained one." : undefined });
   } catch (e) {
     const status = e instanceof ModelError ? e.status : 500;

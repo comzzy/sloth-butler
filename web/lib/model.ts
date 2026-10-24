@@ -1,4 +1,4 @@
-import { SYSTEM_PROMPT, userMessage, type Language, type Style } from "./prompt";
+import { SYSTEM_PROMPT, userMessage, type Context, type Language, type Scenario, type Style } from "./prompt";
 
 const DEFAULT_BASE_URL = "https://tinker.thinkingmachines.dev/services/tinker-prod/oai/api/v1";
 
@@ -33,7 +33,7 @@ function clean(text: string) {
 }
 
 /** Sample one reply from Tinker's OpenAI-compatible chat endpoint. */
-export async function generateReply(variant: Variant, request: string, style: Style, language: Language) {
+export async function generateReply(variant: Variant, request: string, style: Style, language: Language, scenario?: Scenario, ctx: Context = {}) {
   const cfg = modelConfig();
   if (!cfg.hasKey) throw new ModelError("Model is not configured: set TINKER_API_KEY on the server.", 503);
   const model = variant === "finetune" ? cfg.finetunePath : cfg.baseModel;
@@ -42,7 +42,7 @@ export async function generateReply(variant: Variant, request: string, style: St
   // Render exactly like the training renderer (tinker_cookbook "qwen3_disable_thinking") and use
   // /completions, so the server cannot re-template the prompt. Same prompt for base and fine-tune.
   const prompt =
-    `<|im_start|>system\n${SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n${userMessage(request, style, language)}<|im_end|>\n` +
+    `<|im_start|>system\n${SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n${userMessage(request, style, language, scenario, ctx)}<|im_end|>\n` +
     `<|im_start|>assistant\n<think>\n\n</think>\n\n`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 60_000);
