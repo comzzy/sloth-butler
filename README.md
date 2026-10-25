@@ -4,7 +4,7 @@ Sloth-Butler handles the messages you dread replying to.
 
 Live: **https://sloth-butler.vercel.app** · Demo video: https://sloth-butler.vercel.app/demo.mp4 · Guide and FAQ: https://sloth-butler.vercel.app/guide
 
-<sub>Demo music: "Inspired" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).</sub>
+<sub>Demo music: "Late Night Radio" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).</sub>
 
 If you sell your time or your products, you know these messages. A client asks you to "just add one more page" for free. A customer wants 30% off. An invoice is three weeks late and the client asks for another month. Someone wants the order today and to pay you "at the end of the month". A call request lands with ten minutes' notice.
 
