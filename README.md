@@ -4,6 +4,8 @@ Sloth-Butler handles the messages you dread replying to.
 
 Live: **https://sloth-butler.vercel.app** · Demo video: https://sloth-butler.vercel.app/demo.mp4 · Guide and FAQ: https://sloth-butler.vercel.app/guide
 
+<sub>Demo music: "Inspired" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).</sub>
+
 If you sell your time or your products, you know these messages. A client asks you to "just add one more page" for free. A customer wants 30% off. An invoice is three weeks late and the client asks for another month. Someone wants the order today and to pay you "at the end of the month". A call request lands with ten minutes' notice.
 
 None of these are hard decisions. The hard part is the wording: staying polite without giving ground, not over-apologising, and not opening a long back-and-forth. So the reply sits in your inbox for days. Sloth-Butler writes it for you in a few seconds: a polite, firm answer with exactly one counter-offer, such as a paid option, a later date or a partial yes.
