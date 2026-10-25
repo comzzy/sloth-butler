@@ -197,23 +197,13 @@ export function SlothApp() {
 
   const hear = async () => {
     if (!reply) return;
-    if (voiceState === "playing") { audioRef.current?.pause(); window.speechSynthesis?.cancel(); setVoiceState("idle"); return; }
+    if (voiceState === "playing") { audioRef.current?.pause(); setVoiceState("idle"); return; }
     setVoiceError(""); setVoiceState("loading");
     try {
       const a = new Audio(URL.createObjectURL(await voiceBlob(reply.text))); audioRef.current = a;
       a.onended = () => setVoiceState("idle");
       await a.play(); setVoiceState("playing");
-    } catch (err) {
-      // Fall back to the browser's built-in voice so Play still works.
-      const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
-      if (!synth) { setVoiceState("error"); setVoiceError((err as Error).message); return; }
-      synth.cancel();
-      const u = new SpeechSynthesisUtterance(reply.text);
-      u.rate = 0.95;
-      u.onend = () => setVoiceState("idle");
-      u.onerror = () => { setVoiceState("error"); setVoiceError((err as Error).message); };
-      synth.speak(u); setVoiceState("playing");
-    }
+    } catch (err) { setVoiceState("error"); setVoiceError((err as Error).message); }
   };
 
   const download = async () => {
